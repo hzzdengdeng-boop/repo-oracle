@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Repo Oracle</title>
+    <meta
+      name="description"
+      content="A playful GitHub repo analyzer that roasts your README and gives useful growth advice."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero" aria-labelledby="title">
+        <div class="hero-copy">
+          <p class="eyebrow">Funny enough to share. Useful enough to fix.</p>
+          <h1 id="title">Repo Oracle</h1>
+          <p class="lede">
+            Paste a public GitHub repo. Get its personality, star potential,
+            README roast, biggest curse, hidden blessing, and next three moves.
+          </p>
+        </div>
+        <form id="repo-form" class="search-panel">
+          <label for="repo-url">GitHub repository</label>
+          <div class="input-row">
+            <input
+              id="repo-url"
+              name="repo-url"
+              type="url"
+              placeholder="https://github.com/vercel/next.js"
+              autocomplete="off"
+              required
+            />
+            <button type="submit">Read Fortune</button>
+          </div>
+          <p class="hint">
+            Public repositories only. No login, no tokens, no data stored.
+          </p>
+        </form>
+      </section>
+
+      <section class="result-grid" aria-live="polite">
+        <article class="score-card">
+          <div class="score-topline">
+            <span>Star Potential</span>
+            <strong id="score">--</strong>
+          </div>
+          <div class="meter" aria-hidden="true">
+            <div id="meter-fill"></div>
+          </div>
+          <p id="score-label">Waiting for a repo to judge gently.</p>
+        </article>
+
+        <article class="report-card wide">
+          <h2>Fortune Report</h2>
+          <div id="report" class="report">
+            <p>
+              Enter a repository URL to summon a report. The oracle is dramatic,
+              but the checklist is practical.
+            </p>
+          </div>
+        </article>
+
+        <article class="report-card">
+          <h2>Next 3 Moves</h2>
+          <ol id="moves">
+            <li>Add a repo URL above.</li>
+          </ol>
+        </article>
+
+        <article class="report-card">
+          <h2>Share Text</h2>
+          <textarea id="share-text" readonly rows="8">
+Repo Oracle is ready to inspect a repository.</textarea
+          >
+          <button id="copy-share" type="button">Copy</button>
+        </article>
+      </section>
+    </main>
+
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>
