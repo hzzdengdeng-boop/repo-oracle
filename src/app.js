@@ -9,15 +9,20 @@ const report = document.querySelector("#report");
 const moves = document.querySelector("#moves");
 const shareText = document.querySelector("#share-text");
 const copyShare = document.querySelector("#copy-share");
+const shareReport = document.querySelector("#share-report");
+
+let currentRepo = "";
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   setLoading();
   try {
     const { owner, repo } = parseRepoUrl(input.value);
+    currentRepo = `${owner}/${repo}`;
     const data = await fetchRepo(owner, repo);
     const result = analyze(data.meta, data.readme);
     render(result);
+    updatePermalink(currentRepo);
   }
   catch (error) {
     renderError(error);
@@ -29,6 +34,26 @@ copyShare.addEventListener("click", async () => {
   copyShare.textContent = "Copied";
   setTimeout(() => {
     copyShare.textContent = "Copy";
+  }, 1100);
+});
+
+shareReport.addEventListener("click", async () => {
+  const url = new URL(window.location.href);
+  const payload = {
+    title: currentRepo ? `Repo Oracle: ${currentRepo}` : "Repo Oracle",
+    text: shareText.value,
+    url: url.href
+  };
+
+  if (navigator.share) {
+    await navigator.share(payload);
+    return;
+  }
+
+  await navigator.clipboard.writeText(url.href);
+  shareReport.textContent = "Link copied";
+  setTimeout(() => {
+    shareReport.textContent = "Share report";
   }, 1100);
 });
 
@@ -74,6 +99,12 @@ function renderError(error) {
   `;
 }
 
+function updatePermalink(repo) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("repo", repo);
+  window.history.replaceState({}, "", url);
+}
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -81,4 +112,10 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+const initialRepo = new URL(window.location.href).searchParams.get("repo");
+if (initialRepo) {
+  input.value = initialRepo;
+  form.requestSubmit();
 }

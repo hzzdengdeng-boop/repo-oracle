@@ -6,6 +6,9 @@ Repo Oracle is a funny-but-useful GitHub repo growth analyzer. Paste a public
 repository URL and it reads the repo's first impression, predicts star
 potential, roasts the README, and suggests the next three moves.
 
+Every result gets a shareable URL, so maintainers can send the same repo report
+to teammates or post it without asking people to paste the repository again.
+
 ## Why This Exists
 
 Most README checkers are polite and forgettable. Repo Oracle is built to be
@@ -35,6 +38,7 @@ http://localhost:8080
 - license, topics, stars, issues, and recent updates
 - README length and first-screen clarity
 - shareable personality and growth advice
+- permalinked reports with native device sharing
 
 ## Project Shape
 

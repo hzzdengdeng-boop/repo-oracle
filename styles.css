@@ -210,9 +210,23 @@ textarea {
   line-height: 1.45;
 }
 
-#copy-share {
-  width: 100%;
+.share-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
   margin-top: 10px;
+}
+
+.secondary {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+}
+
+.secondary:hover {
+  border-color: var(--accent);
+  background: #fff;
+  color: var(--accent);
 }
 
 @media (max-width: 860px) {

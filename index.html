@@ -27,7 +27,8 @@
             <input
               id="repo-url"
               name="repo-url"
-              type="url"
+              type="text"
+              inputmode="url"
               placeholder="https://github.com/vercel/next.js"
               autocomplete="off"
               required
@@ -74,7 +75,12 @@
           <textarea id="share-text" readonly rows="8">
 Repo Oracle is ready to inspect a repository.</textarea
           >
-          <button id="copy-share" type="button">Copy</button>
+          <div class="share-actions">
+            <button id="copy-share" type="button">Copy text</button>
+            <button id="share-report" class="secondary" type="button">
+              Share report
+            </button>
+          </div>
         </article>
       </section>
     </main>
