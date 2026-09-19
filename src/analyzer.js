@@ -114,7 +114,7 @@ export function analyze(meta, readme) {
     score,
     scoreLabel: labelFor(score),
     personality: pick(personalities, seed),
-    roast: pick(roasts, seed + 11),
+    roast: chooseRoast(checks, seed),
     curse: chooseCurse(checks, seed),
     blessing: pick(blessings, seed + 23),
     moves: nextMoves(checks),
@@ -132,7 +132,14 @@ function chooseCurse(checks, seed) {
   if (!checks.hasScreenshot) return curses[0];
   if (!checks.hasUsage) return curses[2];
   if (!checks.hasDescription) return curses[3];
-  return pick(curses, seed + 17);
+  return pick([curses[1], curses[4]], seed + 17);
+}
+
+function chooseRoast(checks, seed) {
+  if (checks.hasScreenshot) {
+    return pick(roasts.filter((_, index) => ![3, 5].includes(index)), seed + 11);
+  }
+  return pick(roasts, seed + 11);
 }
 
 function nextMoves(checks) {

@@ -34,6 +34,8 @@ Then visit:
 http://localhost:8080
 ```
 
+Run the analyzer checks with `node --test`.
+
 ## What It Checks
 
 - clear one-line positioning
