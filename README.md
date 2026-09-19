@@ -12,13 +12,15 @@ You can also download a 1200 x 630 PNG fortune card for social posts.
 
 ![Example Repo Oracle fortune card](examples/fortune-card.png)
 
+[Try Repo Oracle](https://hzzdengdeng-boop.github.io/repo-oracle/) with any public GitHub repository.
+
 ## Why This Exists
 
 Most README checkers are polite and forgettable. Repo Oracle is built to be
 shareable: it gives a playful fortune report first, then practical advice a
 maintainer can act on in ten minutes.
 
-## Try It Locally
+## Run It Locally
 
 Open `index.html` in a browser, or serve the folder with any static server:
 
@@ -62,7 +64,6 @@ repo-oracle/
 
 ## Roadmap
 
-- Publish a GitHub Pages demo
 - Add CLI mode: `npx repo-oracle owner/repo`
 - Add GitHub Action comments for README reviews
 - Add AI-assisted deep reviews as an optional mode

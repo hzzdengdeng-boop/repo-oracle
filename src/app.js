@@ -12,6 +12,7 @@ const shareText = document.querySelector("#share-text");
 const copyShare = document.querySelector("#copy-share");
 const shareReport = document.querySelector("#share-report");
 const downloadCardButton = document.querySelector("#download-card");
+const appUrl = "https://hzzdengdeng-boop.github.io/repo-oracle/";
 
 let currentRepo = "";
 let currentResult = null;
@@ -41,15 +42,15 @@ copyShare.addEventListener("click", async () => {
 });
 
 downloadCardButton.addEventListener("click", () => {
-  if (currentResult) downloadCard(currentResult, window.location.href);
+  if (currentResult) downloadCard(currentResult, shareUrl(currentRepo));
 });
 
 shareReport.addEventListener("click", async () => {
-  const url = new URL(window.location.href);
+  const url = shareUrl(currentRepo);
   const payload = {
     title: currentRepo ? `Repo Oracle: ${currentRepo}` : "Repo Oracle",
-    text: shareText.value,
-    url: url.href
+    text: `Star potential: ${currentResult.score}/100. ${currentResult.personality}.`,
+    url
   };
 
   if (navigator.share) {
@@ -57,7 +58,7 @@ shareReport.addEventListener("click", async () => {
     return;
   }
 
-  await navigator.clipboard.writeText(url.href);
+  await navigator.clipboard.writeText(url);
   shareReport.textContent = "Link copied";
   setTimeout(() => {
     shareReport.textContent = "Share report";
@@ -94,7 +95,7 @@ function render(result) {
     `"${result.personality}."`,
     `Star potential: ${result.score}/100`,
     `Biggest curse: ${result.curse}`,
-    "Try Repo Oracle: https://github.com/hzzdengdeng-boop/repo-oracle"
+    `Read the report: ${shareUrl(currentRepo)}`
   ].join("\n");
 }
 
@@ -122,6 +123,12 @@ function updatePermalink(repo) {
   const url = new URL(window.location.href);
   url.searchParams.set("repo", repo);
   window.history.replaceState({}, "", url);
+}
+
+function shareUrl(repo) {
+  const url = new URL(appUrl);
+  url.searchParams.set("repo", repo);
+  return url.href;
 }
 
 function escapeHtml(value) {
