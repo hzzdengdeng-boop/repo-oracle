@@ -6,8 +6,11 @@ Repo Oracle is a funny-but-useful GitHub repo growth analyzer. Paste a public
 repository URL and it reads the repo's first impression, predicts star
 potential, roasts the README, and suggests the next three moves.
 
-Every result gets a shareable URL, so maintainers can send the same repo report
-to teammates or post it without asking people to paste the repository again.
+When hosted, every result gets a shareable URL, so maintainers can send the
+same repo report to teammates without asking them to paste the repository again.
+You can also download a 1200 x 630 PNG fortune card for social posts.
+
+![Example Repo Oracle fortune card](examples/fortune-card.png)
 
 ## Why This Exists
 
@@ -39,6 +42,7 @@ http://localhost:8080
 - README length and first-screen clarity
 - shareable personality and growth advice
 - permalinked reports with native device sharing
+- downloadable fortune cards
 
 ## Project Shape
 
@@ -50,13 +54,15 @@ repo-oracle/
     app.js
     analyzer.js
     fortunes.js
+    share-card.js
   examples/
+    fortune-card.png
     sample-report.md
 ```
 
 ## Roadmap
 
-- Generate PNG share cards
+- Publish a GitHub Pages demo
 - Add CLI mode: `npx repo-oracle owner/repo`
 - Add GitHub Action comments for README reviews
 - Add AI-assisted deep reviews as an optional mode

@@ -1,4 +1,5 @@
 import { analyze, fetchRepo, parseRepoUrl } from "./analyzer.js";
+import { downloadCard } from "./share-card.js";
 
 const form = document.querySelector("#repo-form");
 const input = document.querySelector("#repo-url");
@@ -10,8 +11,10 @@ const moves = document.querySelector("#moves");
 const shareText = document.querySelector("#share-text");
 const copyShare = document.querySelector("#copy-share");
 const shareReport = document.querySelector("#share-report");
+const downloadCardButton = document.querySelector("#download-card");
 
 let currentRepo = "";
+let currentResult = null;
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -33,8 +36,12 @@ copyShare.addEventListener("click", async () => {
   await navigator.clipboard.writeText(shareText.value);
   copyShare.textContent = "Copied";
   setTimeout(() => {
-    copyShare.textContent = "Copy";
+    copyShare.textContent = "Copy text";
   }, 1100);
+});
+
+downloadCardButton.addEventListener("click", () => {
+  if (currentResult) downloadCard(currentResult, window.location.href);
 });
 
 shareReport.addEventListener("click", async () => {
@@ -58,6 +65,8 @@ shareReport.addEventListener("click", async () => {
 });
 
 function setLoading() {
+  currentResult = null;
+  setShareEnabled(false);
   score.textContent = "...";
   scoreLabel.textContent = "Reading the repo's aura.";
   meterFill.style.width = "0%";
@@ -66,6 +75,8 @@ function setLoading() {
 }
 
 function render(result) {
+  currentResult = result;
+  setShareEnabled(true);
   score.textContent = result.score;
   scoreLabel.textContent = result.scoreLabel;
   meterFill.style.width = `${result.score}%`;
@@ -88,6 +99,8 @@ function render(result) {
 }
 
 function renderError(error) {
+  currentResult = null;
+  setShareEnabled(false);
   score.textContent = "--";
   scoreLabel.textContent = "The oracle bumped into a closed door.";
   meterFill.style.width = "0%";
@@ -97,6 +110,12 @@ function renderError(error) {
     <li>Use a URL like https://github.com/owner/repo.</li>
     <li>Try again after GitHub rate limits reset.</li>
   `;
+}
+
+function setShareEnabled(enabled) {
+  copyShare.disabled = !enabled;
+  shareReport.disabled = !enabled;
+  downloadCardButton.disabled = !enabled;
 }
 
 function updatePermalink(repo) {
