@@ -24,53 +24,48 @@ export function parseRepoUrl(value) {
 }
 
 export async function fetchRepo(owner, repo) {
-	const headers = { Accept: "application/vnd.github+json" };
-	const repoRes = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers });
-	if (!repoRes.ok) {
-		const fallbackReadme = await fetchReadmeFallback(owner, repo);
-		if (!fallbackReadme) {
-			throw new Error(`GitHub could not read ${owner}/${repo}. The API may be rate-limited, or the repo may be private.`);
-		}
-		return {
-			meta: {
-				full_name: `${owner}/${repo}`,
-				description: "",
-				topics: [],
-				stargazers_count: "?",
-				forks_count: "?",
-				open_issues_count: "?",
-				pushed_at: null,
-				license: null
-			},
-			readme: fallbackReadme
-		};
-	}
-	const meta = await repoRes.json();
+  const headers = { Accept: "application/vnd.github+json" };
+  const repoRes = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers }).catch(() => null);
+  if (!repoRes?.ok) {
+    const fallbackReadme = await fetchReadmeFallback(owner, repo);
+    if (!fallbackReadme) {
+      throw new Error(`GitHub could not read ${owner}/${repo}. The API may be rate-limited, or the repo may be private.`);
+    }
+    return {
+      meta: { full_name: `${owner}/${repo}` },
+      readme: fallbackReadme,
+      readmeOnly: true
+    };
+  }
+  const meta = await repoRes.json();
 
   let readme = "";
-  const readmeRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/readme`, { headers });
-  if (readmeRes.ok) {
+  const readmeRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/readme`, { headers }).catch(() => null);
+  if (readmeRes?.ok) {
     const readmeMeta = await readmeRes.json();
-    const raw = await fetch(readmeMeta.download_url);
-    if (raw.ok) readme = await raw.text();
-	}
-	return { meta, readme };
+    if (readmeMeta.download_url) {
+      const raw = await fetch(readmeMeta.download_url).catch(() => null);
+      if (raw?.ok) readme = await raw.text();
+    }
+  }
+  if (!readme) readme = await fetchReadmeFallback(owner, repo, meta.default_branch);
+  return { meta, readme, readmeOnly: false };
 }
 
-async function fetchReadmeFallback(owner, repo) {
-	const branches = ["main", "master", "canary", "develop"];
-	const names = ["README.md", "readme.md", "README"];
-	for (const branch of branches) {
-		for (const name of names) {
-			const url = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${name}`;
-			const res = await fetch(url);
-			if (res.ok) return res.text();
-		}
-	}
-	return "";
+async function fetchReadmeFallback(owner, repo, defaultBranch) {
+  const branches = [...new Set([defaultBranch, "main", "master", "canary", "develop"].filter(Boolean))];
+  const names = ["README.md", "readme.md", "README"];
+  for (const branch of branches) {
+    for (const name of names) {
+      const url = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${name}`;
+      const res = await fetch(url).catch(() => null);
+      if (res?.ok) return res.text();
+    }
+  }
+  return "";
 }
 
-export function analyze(meta, readme) {
+export function analyze(meta, readme, { readmeOnly = false } = {}) {
   const title = meta.full_name;
   const description = meta.description || "";
   const topics = meta.topics || [];
@@ -90,48 +85,63 @@ export function analyze(meta, readme) {
     hasDemoLink: /\b(demo|playground|try it|live)\b/i.test(readme) && /https?:\/\//.test(readme)
   };
 
-  let score = 15;
-  if (checks.hasDescription) score += 12;
-  if (checks.hasInstall) score += 10;
-  if (checks.hasUsage) score += 11;
-  if (checks.hasScreenshot) score += 12;
-  if (checks.hasCommand) score += 8;
-  if (checks.hasLicense) score += 7;
-  if (checks.hasTopics) score += 8;
-  if (checks.hasRecentUpdate) score += 7;
-  if (checks.hasExamples) score += 5;
-  if (checks.hasContributing) score += 3;
-  if (checks.hasDemoLink) score += 7;
+  let score;
+  if (readmeOnly) {
+    score = 0;
+    if (checks.hasInstall) score += 16;
+    if (checks.hasUsage) score += 20;
+    if (checks.hasScreenshot) score += 16;
+    if (checks.hasCommand) score += 10;
+    if (checks.hasLicense) score += 8;
+    if (checks.hasExamples) score += 8;
+    if (checks.hasContributing) score += 7;
+    if (checks.hasDemoLink) score += 15;
+  } else {
+    score = 15;
+    if (checks.hasDescription) score += 12;
+    if (checks.hasInstall) score += 10;
+    if (checks.hasUsage) score += 11;
+    if (checks.hasScreenshot) score += 12;
+    if (checks.hasCommand) score += 8;
+    if (checks.hasLicense) score += 7;
+    if (checks.hasTopics) score += 8;
+    if (checks.hasRecentUpdate) score += 7;
+    if (checks.hasExamples) score += 5;
+    if (checks.hasContributing) score += 3;
+    if (checks.hasDemoLink) score += 7;
+    if (readme.length < 700) score -= 10;
+    if (!description) score -= 8;
+  }
 
-  if (readme.length < 700) score -= 10;
   if ((lower.match(/badge/g) || []).length > 8) score -= 5;
-  if (!description) score -= 8;
   score = Math.max(0, Math.min(100, score));
 
   return {
     title,
     description,
     score,
-    scoreLabel: labelFor(score),
+    scoreTitle: readmeOnly ? "README Readiness" : "Star Potential",
+    scoreLabel: readmeOnly ? "README-only reading. GitHub API data is unavailable." : labelFor(score),
     personality: pick(personalities, seed),
     roast: chooseRoast(checks, seed),
-    curse: chooseCurse(checks, seed),
+    curse: chooseCurse(checks, seed, readmeOnly),
     blessing: pick(blessings, seed + 23),
-    moves: nextMoves(checks),
+    moves: nextMoves(checks, readmeOnly),
+    readmeOnly,
     facts: {
-      stars: meta.stargazers_count,
-      forks: meta.forks_count,
-      openIssues: meta.open_issues_count,
+      stars: readmeOnly ? null : meta.stargazers_count,
+      forks: readmeOnly ? null : meta.forks_count,
+      openIssues: readmeOnly ? null : meta.open_issues_count,
       topics,
       updated: meta.pushed_at
     }
   };
 }
 
-function chooseCurse(checks, seed) {
+function chooseCurse(checks, seed, readmeOnly) {
   if (!checks.hasScreenshot) return curses[0];
   if (!checks.hasUsage) return curses[2];
-  if (!checks.hasDescription) return curses[3];
+  if (!readmeOnly && !checks.hasDescription) return curses[3];
   return pick([curses[1], curses[4]], seed + 17);
 }
 
@@ -142,12 +152,12 @@ function chooseRoast(checks, seed) {
   return pick(roasts, seed + 11);
 }
 
-function nextMoves(checks) {
+function nextMoves(checks, readmeOnly) {
   const moves = [];
   if (!checks.hasScreenshot) moves.push("Add a screenshot, GIF, or live demo above the fold.");
   if (!checks.hasUsage) moves.push("Add a 30-second quickstart with one copy-paste example.");
   if (!checks.hasInstall) moves.push("Add install/setup steps before the feature list.");
-  if (!checks.hasTopics) moves.push("Add GitHub topics so people can discover it in search.");
+  if (!readmeOnly && !checks.hasTopics) moves.push("Add GitHub topics so people can discover it in search.");
   if (!checks.hasDemoLink) moves.push("Add a live demo or examples page people can share.");
   if (!checks.hasLicense) moves.push("Add a license so strangers know they can use it.");
   if (!checks.hasContributing) moves.push("Add a short contribution section for drive-by improvements.");

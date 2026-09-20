@@ -32,7 +32,7 @@ export function downloadCard(result, permalink) {
   ctx.fillText(String(result.score), 72, 222);
   ctx.fillStyle = "#666a73";
   ctx.font = "bold 20px system-ui, sans-serif";
-  ctx.fillText("STAR POTENTIAL / 100", 255, 301);
+  ctx.fillText(`${result.scoreTitle.toUpperCase()} / 100`, 255, 301);
 
   ctx.fillStyle = "#e0e4df";
   ctx.fillRect(72, 367, 1056, 10);

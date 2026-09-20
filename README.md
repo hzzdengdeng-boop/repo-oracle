@@ -9,6 +9,8 @@ potential, roasts the README, and suggests the next three moves.
 When hosted, every result gets a shareable URL, so maintainers can send the
 same repo report to teammates without asking them to paste the repository again.
 You can also download a 1200 x 630 PNG fortune card for social posts.
+If GitHub's API is rate-limited, the app switches to a clearly labeled
+README-only reading instead of guessing at unavailable repo statistics.
 
 ![Example Repo Oracle fortune card](examples/fortune-card.png)
 

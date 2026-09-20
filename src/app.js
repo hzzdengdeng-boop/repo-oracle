@@ -4,6 +4,7 @@ import { downloadCard } from "./share-card.js";
 const form = document.querySelector("#repo-form");
 const input = document.querySelector("#repo-url");
 const score = document.querySelector("#score");
+const scoreTitle = document.querySelector("#score-title");
 const scoreLabel = document.querySelector("#score-label");
 const meterFill = document.querySelector("#meter-fill");
 const report = document.querySelector("#report");
@@ -24,7 +25,7 @@ form.addEventListener("submit", async (event) => {
     const { owner, repo } = parseRepoUrl(input.value);
     currentRepo = `${owner}/${repo}`;
     const data = await fetchRepo(owner, repo);
-    const result = analyze(data.meta, data.readme);
+    const result = analyze(data.meta, data.readme, { readmeOnly: data.readmeOnly });
     render(result);
     updatePermalink(currentRepo);
   }
@@ -49,7 +50,7 @@ shareReport.addEventListener("click", async () => {
   const url = shareUrl(currentRepo);
   const payload = {
     title: currentRepo ? `Repo Oracle: ${currentRepo}` : "Repo Oracle",
-    text: `Star potential: ${currentResult.score}/100. ${currentResult.personality}.`,
+    text: `${currentResult.scoreTitle}: ${currentResult.score}/100. ${currentResult.personality}.`,
     url
   };
 
@@ -68,6 +69,7 @@ shareReport.addEventListener("click", async () => {
 function setLoading() {
   currentResult = null;
   setShareEnabled(false);
+  scoreTitle.textContent = "Star Potential";
   score.textContent = "...";
   scoreLabel.textContent = "Reading the repo's aura.";
   meterFill.style.width = "0%";
@@ -78,6 +80,7 @@ function setLoading() {
 function render(result) {
   currentResult = result;
   setShareEnabled(true);
+  scoreTitle.textContent = result.scoreTitle;
   score.textContent = result.score;
   scoreLabel.textContent = result.scoreLabel;
   meterFill.style.width = `${result.score}%`;
@@ -87,13 +90,14 @@ function render(result) {
     <p><strong>README Roast:</strong> ${escapeHtml(result.roast)}</p>
     <p><strong>Biggest Curse:</strong> ${escapeHtml(result.curse)}</p>
     <p><strong>Hidden Blessing:</strong> ${escapeHtml(result.blessing)}</p>
-    <p><strong>Public Signals:</strong> ${result.facts.stars} stars, ${result.facts.forks} forks, ${result.facts.openIssues} open issues.</p>
+    <p><strong>Public Signals:</strong> ${result.readmeOnly ? "Unavailable while GitHub API is rate-limited." : `${result.facts.stars} stars, ${result.facts.forks} forks, ${result.facts.openIssues} open issues.`}</p>
   `;
   moves.innerHTML = result.moves.map((move) => `<li>${escapeHtml(move)}</li>`).join("");
   shareText.value = [
     `Repo Oracle read ${result.title}:`,
     `"${result.personality}."`,
-    `Star potential: ${result.score}/100`,
+    `${result.scoreTitle}: ${result.score}/100`,
+    ...(result.readmeOnly ? ["GitHub API unavailable; this reading uses the README only."] : []),
     `Biggest curse: ${result.curse}`,
     `Read the report: ${shareUrl(currentRepo)}`
   ].join("\n");
@@ -102,6 +106,7 @@ function render(result) {
 function renderError(error) {
   currentResult = null;
   setShareEnabled(false);
+  scoreTitle.textContent = "Star Potential";
   score.textContent = "--";
   scoreLabel.textContent = "The oracle bumped into a closed door.";
   meterFill.style.width = "0%";
