@@ -1,26 +1,24 @@
 # Repo Oracle
 
-Your GitHub repo has a destiny.
+A quick, slightly ruthless checkup for your GitHub repo.
 
-Repo Oracle is a funny-but-useful GitHub repo growth analyzer. Paste a public
-repository URL and it reads the repo's first impression, predicts star
-potential, roasts the README, and suggests the next three moves.
+Paste a public repo URL. Repo Oracle reads the README and public GitHub signals,
+then gives you a score, a roast, and three concrete fixes. No account or API key.
 
-When hosted, every result gets a shareable URL, so maintainers can send the
-same repo report to teammates without asking them to paste the repository again.
-You can also download a 1200 x 630 PNG fortune card for social posts.
-If GitHub's API is rate-limited, the app switches to a clearly labeled
-README-only reading instead of guessing at unavailable repo statistics.
+[Try it live](https://hzzdengdeng-boop.github.io/repo-oracle/) or
+[see a sample report](examples/sample-report.md).
 
 ![Example Repo Oracle fortune card](examples/fortune-card.png)
 
-[Try Repo Oracle](https://hzzdengdeng-boop.github.io/repo-oracle/) with any public GitHub repository.
+Reports have shareable links, and you can download a 1200 x 630 PNG card.
+If GitHub's API is rate-limited, the app switches to a clearly labeled
+README-only reading instead of guessing at unavailable repo statistics.
 
 ## Why This Exists
 
-Most README checkers are polite and forgettable. Repo Oracle is built to be
-shareable: it gives a playful fortune report first, then practical advice a
-maintainer can act on in ten minutes.
+Most README checkers hand you a list of missing headings. Repo Oracle turns
+the same first-impression audit into something you might actually share, with
+fixes you can make in ten minutes.
 
 ## Run It Locally
 
