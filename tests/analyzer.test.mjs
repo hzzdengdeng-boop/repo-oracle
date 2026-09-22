@@ -99,3 +99,22 @@ test("README endpoint failure uses the repository's default branch", async () =>
     globalThis.fetch = originalFetch;
   }
 });
+
+test("signal summary explains what passed and failed", () => {
+  const result = analyze({ ...meta, full_name: "owner/signals" }, readme);
+  assert.equal(result.signals.length, 10);
+  assert.equal(result.signals.find((signal) => signal.label === "Visual proof").passed, true);
+  assert.equal(result.signals.find((signal) => signal.label === "Contribution guide").passed, false);
+});
+
+test("README-only signal summary omits unavailable repository metadata", () => {
+  const result = analyze({ full_name: "owner/limited" }, readme, { readmeOnly: true });
+  assert.equal(result.signals.length, 7);
+  assert.ok(!result.signals.some((signal) => signal.label === "Updated recently"));
+});
+
+test("next moves stay distinct when a repository passes most checks", () => {
+  const completeReadme = `${readme}\n## Contributing\nOpen a pull request.`;
+  const result = analyze({ ...meta, full_name: "owner/polished" }, completeReadme);
+  assert.equal(new Set(result.moves).size, 3);
+});

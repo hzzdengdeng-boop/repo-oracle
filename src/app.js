@@ -9,6 +9,7 @@ const scoreLabel = document.querySelector("#score-label");
 const meterFill = document.querySelector("#meter-fill");
 const report = document.querySelector("#report");
 const moves = document.querySelector("#moves");
+const signals = document.querySelector("#signals");
 const shareText = document.querySelector("#share-text");
 const copyShare = document.querySelector("#copy-share");
 const shareReport = document.querySelector("#share-report");
@@ -75,6 +76,7 @@ function setLoading() {
   meterFill.style.width = "0%";
   report.innerHTML = "<p>Summoning repository fortune...</p>";
   moves.innerHTML = "<li>Reading README...</li>";
+  signals.innerHTML = '<li class="signal pending">Checking signals...</li>';
 }
 
 function render(result) {
@@ -93,6 +95,9 @@ function render(result) {
     <p><strong>Public Signals:</strong> ${result.readmeOnly ? "Unavailable while GitHub API is rate-limited." : `${result.facts.stars} stars, ${result.facts.forks} forks, ${result.facts.openIssues} open issues.`}</p>
   `;
   moves.innerHTML = result.moves.map((move) => `<li>${escapeHtml(move)}</li>`).join("");
+  signals.innerHTML = result.signals
+    .map(({ label, passed }) => `<li class="signal ${passed ? "pass" : "miss"}"><span aria-hidden="true">${passed ? "✓" : "×"}</span>${escapeHtml(label)}</li>`)
+    .join("");
   shareText.value = [
     `Repo Oracle read ${result.title}:`,
     `"${result.personality}."`,
@@ -116,6 +121,7 @@ function renderError(error) {
     <li>Use a URL like https://github.com/owner/repo.</li>
     <li>Try again after GitHub rate limits reset.</li>
   `;
+  signals.innerHTML = '<li class="signal pending">No signals available.</li>';
 }
 
 function setShareEnabled(enabled) {

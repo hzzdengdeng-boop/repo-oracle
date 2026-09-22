@@ -4,6 +4,8 @@ A quick, slightly ruthless checkup for your GitHub repo.
 
 Paste a public repo URL. Repo Oracle reads the README and public GitHub signals,
 then gives you a score, a roast, and three concrete fixes. No account or API key.
+The score now includes a visible signal checklist, so you can see exactly what
+passed instead of trusting a mystery number.
 
 [Try it live](https://hzzdengdeng-boop.github.io/repo-oracle/) or
 [see a sample report](examples/sample-report.md).

@@ -127,6 +127,7 @@ export function analyze(meta, readme, { readmeOnly = false } = {}) {
     curse: chooseCurse(checks, seed, readmeOnly),
     blessing: pick(blessings, seed + 23),
     moves: nextMoves(checks, readmeOnly),
+    signals: signalSummary(checks, readmeOnly),
     readmeOnly,
     facts: {
       stars: readmeOnly ? null : meta.stargazers_count,
@@ -136,6 +137,26 @@ export function analyze(meta, readme, { readmeOnly = false } = {}) {
       updated: meta.pushed_at
     }
   };
+}
+
+function signalSummary(checks, readmeOnly) {
+  const signals = [
+    ["Clear install path", checks.hasInstall],
+    ["Usage or quickstart", checks.hasUsage],
+    ["Visual proof", checks.hasScreenshot],
+    ["Copy-paste command", checks.hasCommand],
+    ["License", checks.hasLicense],
+    ["Live demo", checks.hasDemoLink],
+    ["Contribution guide", checks.hasContributing]
+  ];
+  if (!readmeOnly) {
+    signals.push(
+      ["Useful repo description", checks.hasDescription],
+      ["Three or more topics", checks.hasTopics],
+      ["Updated recently", checks.hasRecentUpdate]
+    );
+  }
+  return signals.map(([label, passed]) => ({ label, passed }));
 }
 
 function chooseCurse(checks, seed, readmeOnly) {
@@ -161,8 +182,13 @@ function nextMoves(checks, readmeOnly) {
   if (!checks.hasDemoLink) moves.push("Add a live demo or examples page people can share.");
   if (!checks.hasLicense) moves.push("Add a license so strangers know they can use it.");
   if (!checks.hasContributing) moves.push("Add a short contribution section for drive-by improvements.");
+  const polishMoves = [
+    "Move the clearest value proposition into the first 5 lines of the README.",
+    "Replace one vague claim with a concrete result or example.",
+    "Ask a new user to try the quickstart and fix the first point of friction."
+  ];
   while (moves.length < 3) {
-    moves.push("Move the clearest value proposition into the first 5 lines of the README.");
+    moves.push(polishMoves.find((move) => !moves.includes(move)));
   }
   return moves.slice(0, 3);
 }

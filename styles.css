@@ -208,6 +208,49 @@ li {
   line-height: 1.5;
 }
 
+.signal-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.signal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.signal span {
+  display: grid;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 900;
+}
+
+.signal.pass span {
+  background: var(--accent);
+}
+
+.signal.miss span {
+  background: var(--accent-2);
+}
+
+.signal.pending {
+  grid-column: 1 / -1;
+}
+
 textarea {
   width: 100%;
   resize: vertical;
@@ -257,6 +300,10 @@ textarea {
 
   .wide {
     grid-column: span 1;
+  }
+
+  .signal-list {
+    grid-template-columns: 1fr;
   }
 
   h1 {
