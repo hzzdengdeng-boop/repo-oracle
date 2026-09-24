@@ -1,5 +1,9 @@
 # Repo Oracle
 
+[![Tests](https://github.com/hzzdengdeng-boop/repo-oracle/actions/workflows/test.yml/badge.svg)](https://github.com/hzzdengdeng-boop/repo-oracle/actions/workflows/test.yml)
+[![Live demo](https://img.shields.io/badge/live-demo-1f7a68)](https://hzzdengdeng-boop.github.io/repo-oracle/)
+[![MIT License](https://img.shields.io/badge/license-MIT-d55c3f)](LICENSE)
+
 A quick, slightly ruthless checkup for your GitHub repo.
 
 Paste a public repo URL. Repo Oracle reads the README and public GitHub signals,
@@ -38,6 +42,12 @@ http://localhost:8080
 
 Run the analyzer checks with `node --test`.
 
+## Contributing
+
+New fortunes, sharper checks, and small UI improvements are welcome. Read the
+[contribution guide](CONTRIBUTING.md), then run `node --test` before opening a
+pull request.
+
 ## What It Checks
 
 - clear one-line positioning
@@ -54,6 +64,8 @@ Run the analyzer checks with `node --test`.
 
 ```text
 repo-oracle/
+  .github/workflows/test.yml
+  CONTRIBUTING.md
   index.html
   styles.css
   src/
