@@ -1,6 +1,14 @@
 const WIDTH = 1200;
 const HEIGHT = 630;
 
+export function badgeMarkdown(result, permalink) {
+  const label = result.readmeOnly ? "README Readiness" : "Repo Oracle";
+  const message = `${result.score}/100`;
+  const color = scoreColor(result.score);
+  const badge = `https://img.shields.io/badge/${encodeURIComponent(label)}-${encodeURIComponent(message)}-${color}`;
+  return `[![${label}: ${message}](${badge})](${permalink})`;
+}
+
 export function downloadCard(result, permalink) {
   const canvas = document.createElement("canvas");
   canvas.width = WIDTH;
@@ -101,4 +109,10 @@ function shortLink(permalink) {
     return "github.com/hzzdengdeng-boop/repo-oracle";
   }
   return `${url.host}${url.pathname}`;
+}
+
+function scoreColor(score) {
+  if (score >= 85) return "1f7a68";
+  if (score >= 70) return "d6a72c";
+  return "d55c3f";
 }

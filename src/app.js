@@ -1,5 +1,5 @@
 import { analyze, fetchRepo, parseRepoUrl } from "./analyzer.js";
-import { downloadCard } from "./share-card.js";
+import { badgeMarkdown, downloadCard } from "./share-card.js";
 
 const form = document.querySelector("#repo-form");
 const input = document.querySelector("#repo-url");
@@ -13,6 +13,7 @@ const signals = document.querySelector("#signals");
 const shareText = document.querySelector("#share-text");
 const copyShare = document.querySelector("#copy-share");
 const shareReport = document.querySelector("#share-report");
+const copyBadge = document.querySelector("#copy-badge");
 const downloadCardButton = document.querySelector("#download-card");
 const appUrl = "https://hzzdengdeng-boop.github.io/repo-oracle/";
 
@@ -40,6 +41,14 @@ copyShare.addEventListener("click", async () => {
   copyShare.textContent = "Copied";
   setTimeout(() => {
     copyShare.textContent = "Copy text";
+  }, 1100);
+});
+
+copyBadge.addEventListener("click", async () => {
+  await navigator.clipboard.writeText(badgeMarkdown(currentResult, shareUrl(currentRepo)));
+  copyBadge.textContent = "Badge copied";
+  setTimeout(() => {
+    copyBadge.textContent = "Copy badge";
   }, 1100);
 });
 
@@ -127,6 +136,7 @@ function renderError(error) {
 function setShareEnabled(enabled) {
   copyShare.disabled = !enabled;
   shareReport.disabled = !enabled;
+  copyBadge.disabled = !enabled;
   downloadCardButton.disabled = !enabled;
 }
 

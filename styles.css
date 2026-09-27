@@ -287,10 +287,6 @@ textarea {
   color: var(--ink);
 }
 
-.full-width {
-  grid-column: 1 / -1;
-}
-
 @media (max-width: 860px) {
   .hero,
   .result-grid,

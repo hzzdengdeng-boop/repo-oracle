@@ -17,6 +17,7 @@ passed instead of trusting a mystery number.
 ![Example Repo Oracle fortune card](examples/fortune-card.png)
 
 Reports have shareable links, and you can download a 1200 x 630 PNG card.
+You can also copy a live-report badge straight into your own README.
 If GitHub's API is rate-limited, the app switches to a clearly labeled
 README-only reading instead of guessing at unavailable repo statistics.
 
