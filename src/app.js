@@ -1,8 +1,10 @@
 import { analyze, fetchRepo, parseRepoUrl } from "./analyzer.js";
+import { pickExample } from "./examples.js";
 import { badgeMarkdown, downloadCard } from "./share-card.js";
 
 const form = document.querySelector("#repo-form");
 const input = document.querySelector("#repo-url");
+const surpriseMe = document.querySelector("#surprise-me");
 const score = document.querySelector("#score");
 const scoreTitle = document.querySelector("#score-title");
 const scoreLabel = document.querySelector("#score-label");
@@ -19,6 +21,13 @@ const appUrl = "https://hzzdengdeng-boop.github.io/repo-oracle/";
 
 let currentRepo = "";
 let currentResult = null;
+let lastExample = "";
+
+surpriseMe.addEventListener("click", () => {
+  lastExample = pickExample(Math.random, lastExample);
+  input.value = lastExample;
+  form.requestSubmit();
+});
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -78,6 +87,7 @@ shareReport.addEventListener("click", async () => {
 
 function setLoading() {
   currentResult = null;
+  surpriseMe.disabled = true;
   setShareEnabled(false);
   scoreTitle.textContent = "Star Potential";
   score.textContent = "...";
@@ -90,6 +100,7 @@ function setLoading() {
 
 function render(result) {
   currentResult = result;
+  surpriseMe.disabled = false;
   setShareEnabled(true);
   scoreTitle.textContent = result.scoreTitle;
   score.textContent = result.score;
@@ -119,6 +130,7 @@ function render(result) {
 
 function renderError(error) {
   currentResult = null;
+  surpriseMe.disabled = false;
   setShareEnabled(false);
   scoreTitle.textContent = "Star Potential";
   score.textContent = "--";

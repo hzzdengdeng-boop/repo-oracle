@@ -11,7 +11,8 @@ then gives you a score, a roast, and three concrete fixes. No account or API key
 The score now includes a visible signal checklist, so you can see exactly what
 passed instead of trusting a mystery number.
 
-[Try it live](https://hzzdengdeng-boop.github.io/repo-oracle/) or
+[Try it live](https://hzzdengdeng-boop.github.io/repo-oracle/), hit
+**Surprise me with a repo** for an instant reading, or
 [see a sample report](examples/sample-report.md).
 
 ![Example Repo Oracle fortune card](examples/fortune-card.png)
@@ -72,6 +73,7 @@ repo-oracle/
   src/
     app.js
     analyzer.js
+    examples.js
     fortunes.js
     share-card.js
   examples/
