@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hzzdengdeng-boop.github.io/repo-oracle/sitemap.xml
