@@ -27,3 +27,7 @@ test("describes Repo Oracle as a free developer web app", () => {
   assert.match(index, /"applicationCategory": "DeveloperApplication"/);
   assert.match(index, /"isAccessibleForFree": true/);
 });
+
+test("versions the module entry point to avoid mixed deployments", () => {
+  assert.match(index, /src="src\/app\.js\?v=\d+"/);
+});

@@ -1,4 +1,4 @@
-import { analyze, fetchRepo, parseRepoUrl } from "./analyzer.js";
+import { analyze, fetchRepo, parseRepoUrl } from "./analyzer.js?v=20261009";
 import { pickExample } from "./examples.js";
 import { badgeMarkdown, downloadCard } from "./share-card.js";
 

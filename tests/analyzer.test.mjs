@@ -59,6 +59,15 @@ test("full API readings keep the star-potential label", () => {
   assert.equal(result.facts.stars, 0);
 });
 
+test("fortune tone matches the computed score", () => {
+  const rough = analyze({ ...meta, full_name: "owner/rough" }, "# Bare README");
+  const polishedReadme = `${readme}\n## Contributing\nOpen a pull request.\n${"Useful project details. ".repeat(40)}`;
+  const polished = analyze({ ...meta, full_name: "owner/polished-tone" }, polishedReadme);
+  assert.equal(rough.fortuneTier, "scrappy");
+  assert.equal(polished.fortuneTier, "blessed");
+  assert.doesNotMatch(polished.personality, /forgot strangers/i);
+});
+
 test("a rate-limited API falls back to README-only mode", async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async (url) => {

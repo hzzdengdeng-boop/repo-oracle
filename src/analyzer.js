@@ -1,4 +1,4 @@
-import { blessings, curses, personalities, pick, roasts } from "./fortunes.js";
+import { curseFor, fortuneFor } from "./fortunes.js?v=20261009";
 
 const sectionPatterns = {
   install: /\b(install|installation|setup|get started|getting started)\b/i,
@@ -111,6 +111,8 @@ export function analyze(meta, readme, { readmeOnly = false } = {}) {
 
   if ((lower.match(/badge/g) || []).length > 8) score -= 5;
   score = Math.max(0, Math.min(100, score));
+  const opportunity = bestOpportunity(signals, score);
+  const fortune = fortuneFor(score, seed);
 
   return {
     title,
@@ -118,13 +120,14 @@ export function analyze(meta, readme, { readmeOnly = false } = {}) {
     score,
     scoreTitle: readmeOnly ? "README Readiness" : "Star Potential",
     scoreLabel: readmeOnly ? "README-only reading. GitHub API data is unavailable." : labelFor(score),
-    personality: pick(personalities, seed),
-    roast: chooseRoast(checks, seed),
-    curse: chooseCurse(checks, seed, readmeOnly),
-    blessing: pick(blessings, seed + 23),
+    personality: fortune.personality,
+    roast: fortune.roast,
+    curse: curseFor(opportunity?.label),
+    blessing: fortune.blessing,
+    fortuneTier: fortune.tier,
     moves: nextMoves(signals),
     signals,
-    opportunity: bestOpportunity(signals, score),
+    opportunity,
     readmeOnly,
     facts: {
       stars: readmeOnly ? null : meta.stargazers_count,
@@ -145,20 +148,6 @@ function signalSummary(checks, readmeOnly) {
       points: readmeOnly ? signal.readmePoints : signal.fullPoints,
       move: signal.move
     }));
-}
-
-function chooseCurse(checks, seed, readmeOnly) {
-  if (!checks.hasScreenshot) return curses[0];
-  if (!checks.hasUsage) return curses[2];
-  if (!readmeOnly && !checks.hasDescription) return curses[3];
-  return pick([curses[1], curses[4]], seed + 17);
-}
-
-function chooseRoast(checks, seed) {
-  if (checks.hasScreenshot) {
-    return pick(roasts.filter((_, index) => ![3, 5].includes(index)), seed + 11);
-  }
-  return pick(roasts, seed + 11);
 }
 
 function nextMoves(signals) {

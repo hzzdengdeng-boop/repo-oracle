@@ -10,7 +10,8 @@ Paste a public repo URL. Repo Oracle reads the README and public GitHub signals,
 then gives you a score, a roast, and three concrete fixes. No account or API key.
 The score now includes a visible signal checklist, so you can see exactly what
 passed instead of trusting a mystery number. Missing signals show their point
-value, and the report calls out the highest-impact next win.
+value, and the report calls out the highest-impact next win. Fortune copy scales
+with the score, so polished repos get a playful nitpick instead of a false alarm.
 
 [Try it live](https://hzzdengdeng-boop.github.io/repo-oracle/), hit
 **Surprise me with a repo** for an instant reading, or
