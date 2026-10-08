@@ -102,15 +102,40 @@ test("README endpoint failure uses the repository's default branch", async () =>
 
 test("signal summary explains what passed and failed", () => {
   const result = analyze({ ...meta, full_name: "owner/signals" }, readme);
-  assert.equal(result.signals.length, 10);
+  assert.equal(result.signals.length, 11);
   assert.equal(result.signals.find((signal) => signal.label === "Visual proof").passed, true);
+  assert.equal(result.signals.find((signal) => signal.label === "Visual proof").points, 12);
   assert.equal(result.signals.find((signal) => signal.label === "Contribution guide").passed, false);
 });
 
 test("README-only signal summary omits unavailable repository metadata", () => {
   const result = analyze({ full_name: "owner/limited" }, readme, { readmeOnly: true });
-  assert.equal(result.signals.length, 7);
+  assert.equal(result.signals.length, 8);
   assert.ok(!result.signals.some((signal) => signal.label === "Updated recently"));
+});
+
+test("best opportunity ranks missing signals by score impact", () => {
+  const result = analyze({ ...meta, full_name: "owner/opportunity" }, "# Bare README");
+  assert.deepEqual(result.opportunity, { label: "Visual proof", points: 12, gain: 12 });
+  assert.match(result.moves[0], /screenshot/i);
+});
+
+test("best opportunity respects the remaining room below 100", () => {
+  const noCommandReadme = `${readme.replace(/```sh[\s\S]*?```/, "")}
+## Contributing
+Open a pull request.
+
+${"Practical details for new users. ".repeat(30)}`;
+  const result = analyze({ ...meta, full_name: "owner/nearly-there" }, noCommandReadme);
+  assert.equal(result.score, 97);
+  assert.equal(result.opportunity.label, "Copy-paste command");
+  assert.equal(result.opportunity.gain, 3);
+});
+
+test("a complete README has no missing core opportunity", () => {
+  const completeReadme = `${readme}\n## Contributing\nOpen a pull request.`;
+  const result = analyze({ ...meta, full_name: "owner/complete" }, completeReadme);
+  assert.equal(result.opportunity, null);
 });
 
 test("next moves stay distinct when a repository passes most checks", () => {

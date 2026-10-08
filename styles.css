@@ -208,6 +208,31 @@ button:disabled:hover {
   transition: width 240ms ease;
 }
 
+.opportunity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  margin: 18px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.opportunity span {
+  flex-basis: 100%;
+  color: var(--accent-2);
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+}
+
+.opportunity strong {
+  color: var(--accent);
+}
+
 h2 {
   margin: 0 0 16px;
   font-size: 1.05rem;
@@ -252,7 +277,7 @@ li {
   line-height: 1.35;
 }
 
-.signal span {
+.signal-mark {
   display: grid;
   flex: 0 0 22px;
   width: 22px;
@@ -263,11 +288,21 @@ li {
   font-weight: 900;
 }
 
-.signal.pass span {
+.signal-label {
+  flex: 1 1 auto;
+}
+
+.signal-points {
+  flex: 0 0 auto;
+  color: var(--ink);
+  font-size: 0.78rem;
+}
+
+.signal.pass .signal-mark {
   background: var(--accent);
 }
 
-.signal.miss span {
+.signal.miss .signal-mark {
   background: var(--accent-2);
 }
 

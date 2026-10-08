@@ -8,6 +8,7 @@ const surpriseMe = document.querySelector("#surprise-me");
 const score = document.querySelector("#score");
 const scoreTitle = document.querySelector("#score-title");
 const scoreLabel = document.querySelector("#score-label");
+const opportunity = document.querySelector("#opportunity");
 const meterFill = document.querySelector("#meter-fill");
 const report = document.querySelector("#report");
 const moves = document.querySelector("#moves");
@@ -92,6 +93,7 @@ function setLoading() {
   scoreTitle.textContent = "Star Potential";
   score.textContent = "...";
   scoreLabel.textContent = "Reading the repo's aura.";
+  opportunity.innerHTML = "<span>Best next win</span> Calculating the highest-impact fix.";
   meterFill.style.width = "0%";
   report.innerHTML = "<p>Summoning repository fortune...</p>";
   moves.innerHTML = "<li>Reading README...</li>";
@@ -105,6 +107,9 @@ function render(result) {
   scoreTitle.textContent = result.scoreTitle;
   score.textContent = result.score;
   scoreLabel.textContent = result.scoreLabel;
+  opportunity.innerHTML = result.opportunity
+    ? `<span>Best next win</span><strong>${result.opportunity.gain ? `+${result.opportunity.gain}` : "Score capped"}</strong> ${escapeHtml(result.opportunity.label)}`
+    : "<span>Core signals</span><strong>All earned</strong> Time for finer polish.";
   meterFill.style.width = `${result.score}%`;
   report.innerHTML = `
     <p><strong>Repository:</strong> ${escapeHtml(result.title)}</p>
@@ -116,7 +121,7 @@ function render(result) {
   `;
   moves.innerHTML = result.moves.map((move) => `<li>${escapeHtml(move)}</li>`).join("");
   signals.innerHTML = result.signals
-    .map(({ label, passed }) => `<li class="signal ${passed ? "pass" : "miss"}"><span aria-hidden="true">${passed ? "✓" : "×"}</span>${escapeHtml(label)}</li>`)
+    .map(({ label, passed, points }) => `<li class="signal ${passed ? "pass" : "miss"}"><span class="signal-mark" aria-hidden="true">${passed ? "✓" : "×"}</span><span class="signal-label">${escapeHtml(label)}</span><strong class="signal-points">+${points}</strong></li>`)
     .join("");
   shareText.value = [
     `Repo Oracle read ${result.title}:`,
@@ -135,6 +140,7 @@ function renderError(error) {
   scoreTitle.textContent = "Star Potential";
   score.textContent = "--";
   scoreLabel.textContent = "The oracle bumped into a closed door.";
+  opportunity.innerHTML = "<span>Best next win</span> No reading yet.";
   meterFill.style.width = "0%";
   report.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
   moves.innerHTML = `

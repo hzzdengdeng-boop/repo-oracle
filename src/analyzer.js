@@ -10,6 +10,20 @@ const sectionPatterns = {
   command: /```[\s\S]*?\b(npm|pnpm|yarn|pip|uv|cargo|go install|docker|npx)\b[\s\S]*?```/i
 };
 
+const signalDefinitions = [
+  { key: "hasDescription", label: "Useful repo description", fullPoints: 12, move: "Write a concrete GitHub description that names the user and outcome." },
+  { key: "hasInstall", label: "Clear install path", fullPoints: 10, readmePoints: 16, move: "Add install/setup steps before the feature list." },
+  { key: "hasUsage", label: "Usage or quickstart", fullPoints: 11, readmePoints: 20, move: "Add a 30-second quickstart with one copy-paste example." },
+  { key: "hasScreenshot", label: "Visual proof", fullPoints: 12, readmePoints: 16, move: "Add a screenshot, GIF, or live demo above the fold." },
+  { key: "hasCommand", label: "Copy-paste command", fullPoints: 8, readmePoints: 10, move: "Give visitors one command they can copy and run immediately." },
+  { key: "hasLicense", label: "License", fullPoints: 7, readmePoints: 8, move: "Add a license so strangers know they can use it." },
+  { key: "hasTopics", label: "Three or more topics", fullPoints: 8, move: "Add GitHub topics so people can discover it in search." },
+  { key: "hasRecentUpdate", label: "Updated recently", fullPoints: 7, move: "Ship or document one small update to show the project is active." },
+  { key: "hasExamples", label: "Concrete examples", fullPoints: 5, readmePoints: 8, move: "Add one concrete input-and-output example." },
+  { key: "hasContributing", label: "Contribution guide", fullPoints: 3, readmePoints: 7, move: "Add a short contribution section for drive-by improvements." },
+  { key: "hasDemoLink", label: "Live demo", fullPoints: 7, readmePoints: 15, move: "Add a live demo or examples page people can share." }
+];
+
 export function parseRepoUrl(value) {
   const trimmed = value.trim();
   const match = trimmed.match(/github\.com\/([^/\s]+)\/([^/#?\s]+)/i)
@@ -85,30 +99,12 @@ export function analyze(meta, readme, { readmeOnly = false } = {}) {
     hasDemoLink: /\b(demo|playground|try it|live)\b/i.test(readme) && /https?:\/\//.test(readme)
   };
 
-  let score;
-  if (readmeOnly) {
-    score = 0;
-    if (checks.hasInstall) score += 16;
-    if (checks.hasUsage) score += 20;
-    if (checks.hasScreenshot) score += 16;
-    if (checks.hasCommand) score += 10;
-    if (checks.hasLicense) score += 8;
-    if (checks.hasExamples) score += 8;
-    if (checks.hasContributing) score += 7;
-    if (checks.hasDemoLink) score += 15;
-  } else {
-    score = 15;
-    if (checks.hasDescription) score += 12;
-    if (checks.hasInstall) score += 10;
-    if (checks.hasUsage) score += 11;
-    if (checks.hasScreenshot) score += 12;
-    if (checks.hasCommand) score += 8;
-    if (checks.hasLicense) score += 7;
-    if (checks.hasTopics) score += 8;
-    if (checks.hasRecentUpdate) score += 7;
-    if (checks.hasExamples) score += 5;
-    if (checks.hasContributing) score += 3;
-    if (checks.hasDemoLink) score += 7;
+  const signals = signalSummary(checks, readmeOnly);
+  let score = readmeOnly ? 0 : 15;
+  score += signals
+    .filter((signal) => signal.passed)
+    .reduce((total, signal) => total + signal.points, 0);
+  if (!readmeOnly) {
     if (readme.length < 700) score -= 10;
     if (!description) score -= 8;
   }
@@ -126,8 +122,9 @@ export function analyze(meta, readme, { readmeOnly = false } = {}) {
     roast: chooseRoast(checks, seed),
     curse: chooseCurse(checks, seed, readmeOnly),
     blessing: pick(blessings, seed + 23),
-    moves: nextMoves(checks, readmeOnly),
-    signals: signalSummary(checks, readmeOnly),
+    moves: nextMoves(signals),
+    signals,
+    opportunity: bestOpportunity(signals, score),
     readmeOnly,
     facts: {
       stars: readmeOnly ? null : meta.stargazers_count,
@@ -140,23 +137,14 @@ export function analyze(meta, readme, { readmeOnly = false } = {}) {
 }
 
 function signalSummary(checks, readmeOnly) {
-  const signals = [
-    ["Clear install path", checks.hasInstall],
-    ["Usage or quickstart", checks.hasUsage],
-    ["Visual proof", checks.hasScreenshot],
-    ["Copy-paste command", checks.hasCommand],
-    ["License", checks.hasLicense],
-    ["Live demo", checks.hasDemoLink],
-    ["Contribution guide", checks.hasContributing]
-  ];
-  if (!readmeOnly) {
-    signals.push(
-      ["Useful repo description", checks.hasDescription],
-      ["Three or more topics", checks.hasTopics],
-      ["Updated recently", checks.hasRecentUpdate]
-    );
-  }
-  return signals.map(([label, passed]) => ({ label, passed }));
+  return signalDefinitions
+    .filter((signal) => !readmeOnly || signal.readmePoints != null)
+    .map((signal) => ({
+      label: signal.label,
+      passed: checks[signal.key],
+      points: readmeOnly ? signal.readmePoints : signal.fullPoints,
+      move: signal.move
+    }));
 }
 
 function chooseCurse(checks, seed, readmeOnly) {
@@ -173,15 +161,11 @@ function chooseRoast(checks, seed) {
   return pick(roasts, seed + 11);
 }
 
-function nextMoves(checks, readmeOnly) {
-  const moves = [];
-  if (!checks.hasScreenshot) moves.push("Add a screenshot, GIF, or live demo above the fold.");
-  if (!checks.hasUsage) moves.push("Add a 30-second quickstart with one copy-paste example.");
-  if (!checks.hasInstall) moves.push("Add install/setup steps before the feature list.");
-  if (!readmeOnly && !checks.hasTopics) moves.push("Add GitHub topics so people can discover it in search.");
-  if (!checks.hasDemoLink) moves.push("Add a live demo or examples page people can share.");
-  if (!checks.hasLicense) moves.push("Add a license so strangers know they can use it.");
-  if (!checks.hasContributing) moves.push("Add a short contribution section for drive-by improvements.");
+function nextMoves(signals) {
+  const moves = [...signals]
+    .filter((signal) => !signal.passed)
+    .sort((a, b) => b.points - a.points)
+    .map((signal) => signal.move);
   const polishMoves = [
     "Move the clearest value proposition into the first 5 lines of the README.",
     "Replace one vague claim with a concrete result or example.",
@@ -191,6 +175,18 @@ function nextMoves(checks, readmeOnly) {
     moves.push(polishMoves.find((move) => !moves.includes(move)));
   }
   return moves.slice(0, 3);
+}
+
+function bestOpportunity(signals, score) {
+  const missing = [...signals]
+    .filter((signal) => !signal.passed)
+    .sort((a, b) => b.points - a.points);
+  if (!missing.length) return null;
+  return {
+    label: missing[0].label,
+    points: missing[0].points,
+    gain: Math.min(missing[0].points, 100 - score)
+  };
 }
 
 function labelFor(score) {
