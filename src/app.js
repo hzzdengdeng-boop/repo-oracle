@@ -1,6 +1,6 @@
-import { analyze, fetchRepo, parseRepoUrl } from "./analyzer.js?v=20261009";
+import { analyze, fetchRepo, parseRepoUrl } from "./analyzer.js?v=20261010";
 import { pickExample } from "./examples.js";
-import { badgeMarkdown, downloadCard } from "./share-card.js";
+import { badgeMarkdown, downloadCard, fixPlanMarkdown } from "./share-card.js?v=20261010";
 
 const form = document.querySelector("#repo-form");
 const input = document.querySelector("#repo-url");
@@ -12,6 +12,7 @@ const opportunity = document.querySelector("#opportunity");
 const meterFill = document.querySelector("#meter-fill");
 const report = document.querySelector("#report");
 const moves = document.querySelector("#moves");
+const copyPlan = document.querySelector("#copy-plan");
 const signals = document.querySelector("#signals");
 const shareText = document.querySelector("#share-text");
 const copyShare = document.querySelector("#copy-share");
@@ -59,6 +60,14 @@ copyBadge.addEventListener("click", async () => {
   copyBadge.textContent = "Badge copied";
   setTimeout(() => {
     copyBadge.textContent = "Copy badge";
+  }, 1100);
+});
+
+copyPlan.addEventListener("click", async () => {
+  await navigator.clipboard.writeText(fixPlanMarkdown(currentResult, shareUrl(currentRepo)));
+  copyPlan.textContent = "Plan copied";
+  setTimeout(() => {
+    copyPlan.textContent = "Copy fix plan";
   }, 1100);
 });
 
@@ -152,6 +161,7 @@ function renderError(error) {
 }
 
 function setShareEnabled(enabled) {
+  copyPlan.disabled = !enabled;
   copyShare.disabled = !enabled;
   shareReport.disabled = !enabled;
   copyBadge.disabled = !enabled;

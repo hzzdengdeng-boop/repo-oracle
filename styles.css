@@ -328,6 +328,11 @@ textarea {
   margin-top: 10px;
 }
 
+.card-action {
+  width: 100%;
+  margin-top: 10px;
+}
+
 .secondary {
   border: 1px solid var(--line);
   background: #fff;

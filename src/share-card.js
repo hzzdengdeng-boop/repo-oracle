@@ -9,6 +9,18 @@ export function badgeMarkdown(result, permalink) {
   return `[![${label}: ${message}](${badge})](${permalink})`;
 }
 
+export function fixPlanMarkdown(result, permalink) {
+  return [
+    `## Repo Oracle fix plan for \`${result.title}\``,
+    "",
+    `Current ${result.scoreTitle.toLowerCase()}: **${result.score}/100**`,
+    "",
+    ...result.moves.map((move) => `- [ ] ${move}`),
+    "",
+    `[View the full Repo Oracle report](${permalink})`
+  ].join("\n");
+}
+
 export function downloadCard(result, permalink) {
   const canvas = document.createElement("canvas");
   canvas.width = WIDTH;

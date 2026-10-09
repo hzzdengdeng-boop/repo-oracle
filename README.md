@@ -21,6 +21,7 @@ with the score, so polished repos get a playful nitpick instead of a false alarm
 
 Reports have shareable links, and you can download a 1200 x 630 PNG card.
 You can also copy a live-report badge straight into your own README.
+The three recommended fixes can be copied as a Markdown checklist for an issue.
 Shared links include a large social preview, so the joke survives outside the app.
 If GitHub's API is rate-limited, the app switches to a clearly labeled
 README-only reading instead of guessing at unavailable repo statistics.

@@ -1,4 +1,4 @@
-import { curseFor, fortuneFor } from "./fortunes.js?v=20261009";
+import { curseFor, fortuneFor } from "./fortunes.js?v=20261010";
 
 const sectionPatterns = {
   install: /\b(install|installation|setup|get started|getting started)\b/i,
