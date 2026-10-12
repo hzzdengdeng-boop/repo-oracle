@@ -1,4 +1,4 @@
-import { curseFor, fortuneFor } from "./fortunes.js?v=20261010";
+import { curseFor, fortuneFor } from "./fortunes.js?v=20261012";
 
 const sectionPatterns = {
   install: /\b(install|installation|setup|get started|getting started)\b/i,
@@ -100,18 +100,23 @@ export function analyze(meta, readme, { readmeOnly = false } = {}) {
   };
 
   const signals = signalSummary(checks, readmeOnly);
-  let score = readmeOnly ? 0 : 15;
-  score += signals
+  const base = readmeOnly ? 0 : 10;
+  const earned = signals
     .filter((signal) => signal.passed)
     .reduce((total, signal) => total + signal.points, 0);
-  if (!readmeOnly) {
-    if (readme.length < 700) score -= 10;
-    if (!description) score -= 8;
+  const penalties = [];
+  if (!readmeOnly && readme.length < 700) {
+    penalties.push({ label: "Short README", points: 10, move: "Add enough context to help a new visitor understand and try the project." });
   }
-
-  if ((lower.match(/badge/g) || []).length > 8) score -= 5;
-  score = Math.max(0, Math.min(100, score));
-  const opportunity = bestOpportunity(signals, score);
+  if ((lower.match(/badge/g) || []).length > 8) {
+    penalties.push({ label: "Badge clutter", points: 5, move: "Keep only the badges that help visitors decide whether to use the project." });
+  }
+  const rawScore = base + earned - penalties.reduce((total, penalty) => total + penalty.points, 0);
+  const score = clampScore(rawScore);
+  const opportunities = rankOpportunities(signals, penalties, rawScore);
+  const opportunity = opportunities.length
+    ? { label: opportunities[0].label, points: opportunities[0].points, gain: opportunities[0].gain }
+    : null;
   const fortune = fortuneFor(score, seed);
 
   return {
@@ -125,8 +130,9 @@ export function analyze(meta, readme, { readmeOnly = false } = {}) {
     curse: curseFor(opportunity?.label),
     blessing: fortune.blessing,
     fortuneTier: fortune.tier,
-    moves: nextMoves(signals),
+    moves: nextMoves(opportunities),
     signals,
+    scoreBreakdown: { base, earned, penalties },
     opportunity,
     readmeOnly,
     facts: {
@@ -150,11 +156,8 @@ function signalSummary(checks, readmeOnly) {
     }));
 }
 
-function nextMoves(signals) {
-  const moves = [...signals]
-    .filter((signal) => !signal.passed)
-    .sort((a, b) => b.points - a.points)
-    .map((signal) => signal.move);
+function nextMoves(opportunities) {
+  const moves = opportunities.map((item) => item.move);
   const polishMoves = [
     "Move the clearest value proposition into the first 5 lines of the README.",
     "Replace one vague claim with a concrete result or example.",
@@ -166,16 +169,18 @@ function nextMoves(signals) {
   return moves.slice(0, 3);
 }
 
-function bestOpportunity(signals, score) {
-  const missing = [...signals]
-    .filter((signal) => !signal.passed)
-    .sort((a, b) => b.points - a.points);
-  if (!missing.length) return null;
-  return {
-    label: missing[0].label,
-    points: missing[0].points,
-    gain: Math.min(missing[0].points, 100 - score)
-  };
+function rankOpportunities(signals, penalties, rawScore) {
+  return [...signals.filter((signal) => !signal.passed), ...penalties]
+    .map((item) => ({
+      ...item,
+      gain: clampScore(rawScore + item.points) - clampScore(rawScore)
+    }))
+    .filter((item) => item.gain > 0)
+    .sort((a, b) => b.gain - a.gain);
+}
+
+function clampScore(value) {
+  return Math.max(0, Math.min(100, value));
 }
 
 function labelFor(score) {

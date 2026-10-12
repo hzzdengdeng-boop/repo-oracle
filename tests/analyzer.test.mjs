@@ -129,22 +129,50 @@ test("best opportunity ranks missing signals by score impact", () => {
   assert.match(result.moves[0], /screenshot/i);
 });
 
-test("best opportunity respects the remaining room below 100", () => {
+test("a missing signal costs exactly its listed points", () => {
   const noCommandReadme = `${readme.replace(/```sh[\s\S]*?```/, "")}
 ## Contributing
 Open a pull request.
 
 ${"Practical details for new users. ".repeat(30)}`;
   const result = analyze({ ...meta, full_name: "owner/nearly-there" }, noCommandReadme);
-  assert.equal(result.score, 97);
+  assert.equal(result.score, 92);
   assert.equal(result.opportunity.label, "Copy-paste command");
-  assert.equal(result.opportunity.gain, 3);
+  assert.equal(result.opportunity.gain, 8);
 });
 
 test("a complete README has no missing core opportunity", () => {
-  const completeReadme = `${readme}\n## Contributing\nOpen a pull request.`;
+  const completeReadme = `${readme}\n## Contributing\nOpen a pull request.\n${"Practical details for new users. ".repeat(30)}`;
   const result = analyze({ ...meta, full_name: "owner/complete" }, completeReadme);
+  assert.equal(result.score, 100);
+  assert.deepEqual(result.scoreBreakdown, { base: 10, earned: 90, penalties: [] });
   assert.equal(result.opportunity, null);
+});
+
+test("a missing description is not charged twice", () => {
+  const completeReadme = `${readme}\n## Contributing\nOpen a pull request.\n${"Practical details for new users. ".repeat(30)}`;
+  const result = analyze({ ...meta, description: "", full_name: "owner/no-description" }, completeReadme);
+  assert.equal(result.score, 88);
+  assert.deepEqual(result.opportunity, { label: "Useful repo description", points: 12, gain: 12 });
+});
+
+test("a short README deduction appears in the score and next move", () => {
+  const completeReadme = `${readme}\n## Contributing\nOpen a pull request.`;
+  const result = analyze({ ...meta, full_name: "owner/short" }, completeReadme);
+  assert.equal(result.score, 90);
+  assert.deepEqual(result.scoreBreakdown.penalties.map(({ label, points }) => ({ label, points })), [
+    { label: "Short README", points: 10 }
+  ]);
+  assert.deepEqual(result.opportunity, { label: "Short README", points: 10, gain: 10 });
+  assert.match(result.moves[0], /context/i);
+});
+
+test("badge clutter is deducted and can be fixed", () => {
+  const completeReadme = `${readme}\n## Contributing\nOpen a pull request.\n${"Practical details for new users. ".repeat(30)}\n${"badge ".repeat(9)}`;
+  const result = analyze({ ...meta, full_name: "owner/badges" }, completeReadme);
+  assert.equal(result.score, 95);
+  assert.deepEqual(result.opportunity, { label: "Badge clutter", points: 5, gain: 5 });
+  assert.match(result.curse, /badge/i);
 });
 
 test("next moves stay distinct when a repository passes most checks", () => {

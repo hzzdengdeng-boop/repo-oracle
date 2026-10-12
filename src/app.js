@@ -1,4 +1,4 @@
-import { analyze, fetchRepo, parseRepoUrl } from "./analyzer.js?v=20261010";
+import { analyze, fetchRepo, parseRepoUrl } from "./analyzer.js?v=20261012";
 import { pickExample } from "./examples.js";
 import { badgeMarkdown, downloadCard, fixPlanMarkdown } from "./share-card.js?v=20261010";
 
@@ -14,6 +14,7 @@ const report = document.querySelector("#report");
 const moves = document.querySelector("#moves");
 const copyPlan = document.querySelector("#copy-plan");
 const signals = document.querySelector("#signals");
+const scoreMath = document.querySelector("#score-math");
 const shareText = document.querySelector("#share-text");
 const copyShare = document.querySelector("#copy-share");
 const shareReport = document.querySelector("#share-report");
@@ -107,6 +108,7 @@ function setLoading() {
   report.innerHTML = "<p>Summoning repository fortune...</p>";
   moves.innerHTML = "<li>Reading README...</li>";
   signals.innerHTML = '<li class="signal pending">Checking signals...</li>';
+  scoreMath.textContent = "";
 }
 
 function render(result) {
@@ -132,6 +134,11 @@ function render(result) {
   signals.innerHTML = result.signals
     .map(({ label, passed, points }) => `<li class="signal ${passed ? "pass" : "miss"}"><span class="signal-mark" aria-hidden="true">${passed ? "✓" : "×"}</span><span class="signal-label">${escapeHtml(label)}</span><strong class="signal-points">+${points}</strong></li>`)
     .join("");
+  const { base, earned, penalties } = result.scoreBreakdown;
+  const expression = `${base ? `${base} base + ` : ""}${earned} signals`
+    + penalties.map(({ label, points }) => ` - ${points} ${label.toLowerCase()}`).join("");
+  const rawScore = base + earned - penalties.reduce((total, penalty) => total + penalty.points, 0);
+  scoreMath.textContent = `${rawScore < 0 ? `max(0, ${expression})` : expression} = ${result.score}`;
   shareText.value = [
     `Repo Oracle read ${result.title}:`,
     `"${result.personality}."`,
@@ -158,6 +165,7 @@ function renderError(error) {
     <li>Try again after GitHub rate limits reset.</li>
   `;
   signals.innerHTML = '<li class="signal pending">No signals available.</li>';
+  scoreMath.textContent = "";
 }
 
 function setShareEnabled(enabled) {

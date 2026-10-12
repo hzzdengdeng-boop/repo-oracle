@@ -81,7 +81,9 @@ const curseBySignal = {
   "Updated recently": "The project may be active, but its public pulse is faint.",
   "Concrete examples": "The claims sound plausible, but visitors still have to invent the proof.",
   "Contribution guide": "Potential contributors reach the workshop and find no instructions on the door.",
-  "Live demo": "The repo describes the experience without giving visitors a place to try it."
+  "Live demo": "The repo describes the experience without giving visitors a place to try it.",
+  "Short README": "The README ends before a new visitor gets the context to try the project.",
+  "Badge clutter": "The badge parade is crowding out the project itself."
 };
 
 // Keep the original exports available while browsers age out cached analyzer modules.

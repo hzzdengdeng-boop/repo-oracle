@@ -310,6 +310,19 @@ li {
   grid-column: 1 / -1;
 }
 
+.score-math {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.score-math:empty {
+  display: none;
+}
+
 textarea {
   width: 100%;
   resize: vertical;
