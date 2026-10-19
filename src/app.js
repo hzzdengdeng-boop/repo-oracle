@@ -1,6 +1,6 @@
 import { analyze, fetchRepo, parseRepoUrl } from "./analyzer.js?v=20261012";
 import { pickExample } from "./examples.js";
-import { badgeMarkdown, downloadCard, fixPlanMarkdown } from "./share-card.js?v=20261010";
+import { badgeMarkdown, downloadCard, fixPlanMarkdown, shareTextFor } from "./share-card.js?v=20261013";
 
 const form = document.querySelector("#repo-form");
 const input = document.querySelector("#repo-url");
@@ -139,14 +139,7 @@ function render(result) {
     + penalties.map(({ label, points }) => ` - ${points} ${label.toLowerCase()}`).join("");
   const rawScore = base + earned - penalties.reduce((total, penalty) => total + penalty.points, 0);
   scoreMath.textContent = `${rawScore < 0 ? `max(0, ${expression})` : expression} = ${result.score}`;
-  shareText.value = [
-    `Repo Oracle read ${result.title}:`,
-    `"${result.personality}."`,
-    `${result.scoreTitle}: ${result.score}/100`,
-    ...(result.readmeOnly ? ["GitHub API unavailable; this reading uses the README only."] : []),
-    `Biggest curse: ${result.curse}`,
-    `Read the report: ${shareUrl(currentRepo)}`
-  ].join("\n");
+  shareText.value = shareTextFor(result, shareUrl(currentRepo));
 }
 
 function renderError(error) {

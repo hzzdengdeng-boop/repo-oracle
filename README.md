@@ -21,6 +21,7 @@ The score line shows earned points and any README or badge deductions.
 ![Example Repo Oracle fortune card](examples/fortune-card.png)
 
 Reports have shareable links, and you can download a 1200 x 630 PNG card.
+Shared text and cards include the highest-impact next win, not just the score.
 You can also copy a live-report badge straight into your own README.
 The three recommended fixes can be copied as a Markdown checklist for an issue.
 Shared links include a large social preview, so the joke survives outside the app.

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { badgeMarkdown, fixPlanMarkdown } from "../src/share-card.js";
+import { badgeMarkdown, fixPlanMarkdown, shareTextFor } from "../src/share-card.js";
 
 test("badge markdown links the score to the report", () => {
   const permalink = "https://example.com/?repo=owner%2Frepo";
@@ -28,4 +28,33 @@ test("fix plan markdown is ready for a GitHub issue", () => {
   assert.match(markdown, /Current star potential: \*\*68\/100\*\*/);
   assert.equal((markdown.match(/- \[ \]/g) || []).length, 3);
   assert.ok(markdown.endsWith(`[View the full Repo Oracle report](${permalink})`));
+});
+
+test("share text names the next score win and links the reading", () => {
+  const permalink = "https://example.com/?repo=owner%2Frepo";
+  const copy = shareTextFor({
+    title: "owner/repo",
+    personality: "a promising little workshop",
+    scoreTitle: "Star Potential",
+    score: 72,
+    curse: "Visitors cannot try it yet.",
+    opportunity: { label: "Copy-paste command", gain: 8 },
+    readmeOnly: false
+  }, permalink);
+  assert.match(copy, /Next win: \+8 for Copy-paste command\./);
+  assert.ok(copy.endsWith(`Read the report: ${permalink}`));
+});
+
+test("fully earned share text does not invent a missing signal", () => {
+  const copy = shareTextFor({
+    title: "owner/repo",
+    personality: "ready for visitors",
+    scoreTitle: "README Readiness",
+    score: 100,
+    curse: "Even the oracle has no easy complaint.",
+    opportunity: null,
+    readmeOnly: true
+  }, "https://example.com/");
+  assert.doesNotMatch(copy, /Next win:/);
+  assert.match(copy, /GitHub API unavailable/);
 });

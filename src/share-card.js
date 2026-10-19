@@ -21,6 +21,18 @@ export function fixPlanMarkdown(result, permalink) {
   ].join("\n");
 }
 
+export function shareTextFor(result, permalink) {
+  return [
+    `Repo Oracle read ${result.title}:`,
+    `"${result.personality}."`,
+    `${result.scoreTitle}: ${result.score}/100`,
+    ...(result.readmeOnly ? ["GitHub API unavailable; this reading uses the README only."] : []),
+    `Biggest curse: ${result.curse}`,
+    ...(result.opportunity ? [`Next win: +${result.opportunity.gain} for ${result.opportunity.label}.`] : []),
+    `Read the report: ${permalink}`
+  ].join("\n");
+}
+
 export function downloadCard(result, permalink) {
   const canvas = document.createElement("canvas");
   canvas.width = WIDTH;
@@ -66,6 +78,13 @@ export function downloadCard(result, permalink) {
   ctx.font = "bold 30px system-ui, sans-serif";
   const verdict = wrapText(ctx, `${result.personality}.`, 1056, 2);
   verdict.forEach((line, index) => ctx.fillText(line, 72, 443 + index * 38));
+
+  ctx.fillStyle = "#d55c3f";
+  ctx.font = "bold 20px system-ui, sans-serif";
+  const nextWin = result.opportunity
+    ? `NEXT WIN  +${result.opportunity.gain}  ${result.opportunity.label}`
+    : "ALL CORE SIGNALS EARNED";
+  ctx.fillText(fitText(ctx, nextWin, 1056), 72, 535);
 
   ctx.fillStyle = "#666a73";
   ctx.font = "20px system-ui, sans-serif";
