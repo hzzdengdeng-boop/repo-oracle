@@ -117,6 +117,20 @@ test("signal summary explains what passed and failed", () => {
   assert.equal(result.signals.find((signal) => signal.label === "Contribution guide").passed, false);
 });
 
+test("copy-paste commands recognize common non-Node quickstarts", () => {
+  for (const command of ["python -m http.server 8080", "git clone https://example.com/repo.git", "$ curl https://example.com/install.sh"]) {
+    const commandReadme = readme.replace(/```sh[\s\S]*?```/, `~~~bash\n${command}\n~~~`);
+    const result = analyze({ ...meta, full_name: `owner/${command.split(" ")[0]}` }, commandReadme);
+    assert.equal(result.signals.find((signal) => signal.label === "Copy-paste command").passed, true);
+  }
+});
+
+test("command mentions outside shell fences do not earn quickstart points", () => {
+  const noCommandReadme = readme.replace(/```sh[\s\S]*?```/, "This project mentions npm install.\n\n```js\nconst note = 'npm install';\n```");
+  const result = analyze({ ...meta, full_name: "owner/no-command" }, noCommandReadme);
+  assert.equal(result.signals.find((signal) => signal.label === "Copy-paste command").passed, false);
+});
+
 test("README-only signal summary omits unavailable repository metadata", () => {
   const result = analyze({ full_name: "owner/limited" }, readme, { readmeOnly: true });
   assert.equal(result.signals.length, 8);

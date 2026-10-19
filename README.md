@@ -13,6 +13,7 @@ passed instead of trusting a mystery number. Missing signals show their point
 value, and the report calls out the highest-impact next win. Fortune copy scales
 with the score, so polished repos get a playful nitpick instead of a false alarm.
 The score line shows earned points and any README or badge deductions.
+Command checks recognize Python, Git, and other shell quickstarts, not only package-manager examples.
 
 [Try it live](https://hzzdengdeng-boop.github.io/repo-oracle/), hit
 **Surprise me with a repo** for an instant reading, or

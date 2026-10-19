@@ -6,9 +6,11 @@ const sectionPatterns = {
   license: /\blicense\b/i,
   contribute: /\b(contributing|contribute|development)\b/i,
   screenshot: /!\[[^\]]*\]\([^)]+\)|\b(screenshot|gif|demo video|preview)\b/i,
-  badge: /\[!\[[^\]]*\]\([^)]+\)\]\([^)]+\)/,
-  command: /```[\s\S]*?\b(npm|pnpm|yarn|pip|uv|cargo|go install|docker|npx)\b[\s\S]*?```/i
+  badge: /\[!\[[^\]]*\]\([^)]+\)\]\([^)]+\)/
 };
+
+const shellFenceLanguages = new Set(["", "bash", "sh", "shell", "console", "powershell", "ps1", "zsh", "fish", "cmd", "bat", "text"]);
+const runnableCommand = /^(?:npm|pnpm|yarn|pip3?|uv|cargo|go|docker|npx|python3?|git|curl|wget|make|bun|deno|brew|poetry|bundle|gem|node|bash|sh|dotnet|java|mvn|gradle)\b/i;
 
 const signalDefinitions = [
   { key: "hasDescription", label: "Useful repo description", fullPoints: 12, move: "Write a concrete GitHub description that names the user and outcome." },
@@ -90,7 +92,7 @@ export function analyze(meta, readme, { readmeOnly = false } = {}) {
     hasInstall: sectionPatterns.install.test(readme),
     hasUsage: sectionPatterns.usage.test(readme),
     hasScreenshot: sectionPatterns.screenshot.test(readme),
-    hasCommand: sectionPatterns.command.test(readme),
+    hasCommand: hasRunnableCommand(readme),
     hasLicense: Boolean(meta.license) || sectionPatterns.license.test(readme),
     hasTopics: topics.length >= 3,
     hasRecentUpdate: daysSince(meta.pushed_at) <= 45,
@@ -143,6 +145,18 @@ export function analyze(meta, readme, { readmeOnly = false } = {}) {
       updated: meta.pushed_at
     }
   };
+}
+
+function hasRunnableCommand(readme) {
+  const fences = readme.matchAll(/^[ \t]*(`{3,}|~{3,})([^\r\n]*)\r?\n([\s\S]*?)^[ \t]*\1[ \t]*\r?$/gm);
+  for (const [, , info, body] of fences) {
+    const language = info.trim().split(/\s+/)[0].toLowerCase();
+    if (!shellFenceLanguages.has(language)) continue;
+    if (body.split(/\r?\n/).some((line) => runnableCommand.test(line.trim().replace(/^(?:\$|PS>|>)\s*/i, "")))) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function signalSummary(checks, readmeOnly) {
