@@ -364,6 +364,75 @@ textarea {
   color: var(--ink);
 }
 
+.duel {
+  margin-top: 42px;
+  padding: 28px 0 48px;
+  border-top: 2px solid var(--ink);
+}
+
+.duel[hidden],
+#copy-duel[hidden] {
+  display: none;
+}
+
+.duel h2 {
+  font-size: 1.35rem;
+}
+
+.duel label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 800;
+}
+
+.duel-result {
+  margin-top: 22px;
+}
+
+.duel-result:empty {
+  display: none;
+}
+
+.duel-scores {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 22px;
+  align-items: center;
+}
+
+.duel-side {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.duel-side strong {
+  display: block;
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.duel-side span,
+.duel-side small {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+}
+
+.duel-versus {
+  color: var(--accent-2);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.duel-verdict {
+  margin: 18px 0 0;
+  font-weight: 800;
+}
+
+#copy-duel {
+  margin-top: 16px;
+}
+
 @media (max-width: 860px) {
   .hero,
   .result-grid,
@@ -381,5 +450,13 @@ textarea {
 
   h1 {
     font-size: clamp(3.5rem, 18vw, 5.8rem);
+  }
+
+  .duel-scores {
+    gap: 12px;
+  }
+
+  .duel-side strong {
+    font-size: 2.4rem;
   }
 }

@@ -149,8 +149,28 @@ Repo Oracle is ready to inspect a repository.</textarea
           <p id="score-math" class="score-math"></p>
         </article>
       </section>
+
+      <section id="duel" class="duel" aria-labelledby="duel-title" hidden>
+        <h2 id="duel-title">Repo Duel</h2>
+        <form id="duel-form">
+          <label for="duel-url">Challenger repository</label>
+          <div class="input-row">
+            <input
+              id="duel-url"
+              type="text"
+              inputmode="url"
+              placeholder="https://github.com/owner/repo"
+              autocomplete="off"
+              required
+            />
+            <button type="submit">Compare</button>
+          </div>
+        </form>
+        <div id="duel-result" class="duel-result" aria-live="polite"></div>
+        <button id="copy-duel" class="secondary" type="button" hidden disabled>Copy comparison</button>
+      </section>
     </main>
 
-    <script type="module" src="src/app.js?v=20261020"></script>
+    <script type="module" src="src/app.js?v=20261021"></script>
   </body>
 </html>

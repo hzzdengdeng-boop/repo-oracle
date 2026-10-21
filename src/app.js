@@ -1,4 +1,5 @@
 import { analyze, fetchRepo, parseRepoUrl } from "./analyzer.js?v=20261020";
+import { compareReadings, comparisonText } from "./compare.js?v=20261021";
 import { pickExample } from "./examples.js";
 import { badgeMarkdown, downloadCard, fixPlanMarkdown, shareTextFor } from "./share-card.js?v=20261013";
 
@@ -20,11 +21,22 @@ const copyShare = document.querySelector("#copy-share");
 const shareReport = document.querySelector("#share-report");
 const copyBadge = document.querySelector("#copy-badge");
 const downloadCardButton = document.querySelector("#download-card");
+const duel = document.querySelector("#duel");
+const duelForm = document.querySelector("#duel-form");
+const duelInput = document.querySelector("#duel-url");
+const duelResult = document.querySelector("#duel-result");
+const copyDuel = document.querySelector("#copy-duel");
+const compareButton = duelForm.querySelector("button[type='submit']");
 const appUrl = "https://hzzdengdeng-boop.github.io/repo-oracle/";
 
 let currentRepo = "";
 let currentResult = null;
+let opponentRepo = "";
+let opponentResult = null;
 let lastExample = "";
+let readingVersion = 0;
+let opponentVersion = 0;
+let initialOpponent = new URL(window.location.href).searchParams.get("vs");
 
 surpriseMe.addEventListener("click", () => {
   lastExample = pickExample(Math.random, lastExample);
@@ -34,18 +46,39 @@ surpriseMe.addEventListener("click", () => {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+  const version = ++readingVersion;
+  const opponentFromLink = initialOpponent;
+  initialOpponent = null;
   setLoading();
   try {
     const { owner, repo } = parseRepoUrl(input.value);
-    currentRepo = `${owner}/${repo}`;
     const data = await fetchRepo(owner, repo);
+    if (version !== readingVersion) return;
+    currentRepo = `${owner}/${repo}`;
     const result = analyze(data.meta, data.readme, { readmeOnly: data.readmeOnly });
     render(result);
     updatePermalink(currentRepo);
+    if (opponentFromLink) {
+      duelInput.value = opponentFromLink;
+      await readOpponent(opponentFromLink, version);
+    }
   }
   catch (error) {
-    renderError(error);
+    if (version === readingVersion) renderError(error);
   }
+});
+
+duelForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  await readOpponent(duelInput.value, readingVersion);
+});
+
+copyDuel.addEventListener("click", async () => {
+  await navigator.clipboard.writeText(comparisonText(currentResult, opponentResult, duelUrl(currentRepo, opponentRepo)));
+  copyDuel.textContent = "Copied";
+  setTimeout(() => {
+    copyDuel.textContent = "Copy comparison";
+  }, 1100);
 });
 
 copyShare.addEventListener("click", async () => {
@@ -98,6 +131,7 @@ shareReport.addEventListener("click", async () => {
 
 function setLoading() {
   currentResult = null;
+  resetDuel();
   surpriseMe.disabled = true;
   setShareEnabled(false);
   scoreTitle.textContent = "Star Potential";
@@ -113,6 +147,7 @@ function setLoading() {
 
 function render(result) {
   currentResult = result;
+  duel.hidden = false;
   surpriseMe.disabled = false;
   setShareEnabled(true);
   scoreTitle.textContent = result.scoreTitle;
@@ -144,6 +179,7 @@ function render(result) {
 
 function renderError(error) {
   currentResult = null;
+  resetDuel();
   surpriseMe.disabled = false;
   setShareEnabled(false);
   scoreTitle.textContent = "Star Potential";
@@ -161,6 +197,56 @@ function renderError(error) {
   scoreMath.textContent = "";
 }
 
+async function readOpponent(value, version) {
+  const attempt = ++opponentVersion;
+  opponentRepo = "";
+  opponentResult = null;
+  copyDuel.hidden = true;
+  copyDuel.disabled = true;
+  compareButton.disabled = true;
+  duelResult.textContent = "Reading the challenger...";
+  updatePermalink(currentRepo);
+  try {
+    const { owner, repo } = parseRepoUrl(value);
+    const challenger = `${owner}/${repo}`;
+    if (challenger.toLowerCase() === currentRepo.toLowerCase()) {
+      throw new Error("Pick a different repository for the duel.");
+    }
+    const data = await fetchRepo(owner, repo);
+    if (version !== readingVersion || attempt !== opponentVersion) return;
+    opponentRepo = challenger;
+    opponentResult = analyze(data.meta, data.readme, { readmeOnly: data.readmeOnly });
+    const { verdict } = compareReadings(currentResult, opponentResult);
+    duelResult.innerHTML = `
+      <div class="duel-scores">
+        <div class="duel-side"><strong>${currentResult.score}</strong><span>${escapeHtml(currentResult.title)}</span><small>${escapeHtml(currentResult.scoreTitle)}</small></div>
+        <span class="duel-versus">vs</span>
+        <div class="duel-side"><strong>${opponentResult.score}</strong><span>${escapeHtml(opponentResult.title)}</span><small>${escapeHtml(opponentResult.scoreTitle)}</small></div>
+      </div>
+      <p class="duel-verdict">${escapeHtml(verdict)}</p>
+    `;
+    updatePermalink(currentRepo, opponentRepo);
+    copyDuel.hidden = false;
+    copyDuel.disabled = false;
+  } catch (error) {
+    if (version === readingVersion && attempt === opponentVersion) duelResult.textContent = error.message;
+  } finally {
+    if (version === readingVersion && attempt === opponentVersion) compareButton.disabled = false;
+  }
+}
+
+function resetDuel() {
+  opponentVersion += 1;
+  opponentRepo = "";
+  opponentResult = null;
+  duel.hidden = true;
+  duelInput.value = "";
+  duelResult.textContent = "";
+  copyDuel.hidden = true;
+  copyDuel.disabled = true;
+  compareButton.disabled = false;
+}
+
 function setShareEnabled(enabled) {
   copyPlan.disabled = !enabled;
   copyShare.disabled = !enabled;
@@ -169,15 +255,23 @@ function setShareEnabled(enabled) {
   downloadCardButton.disabled = !enabled;
 }
 
-function updatePermalink(repo) {
+function updatePermalink(repo, opponent = "") {
   const url = new URL(window.location.href);
   url.searchParams.set("repo", repo);
+  if (opponent) url.searchParams.set("vs", opponent);
+  else url.searchParams.delete("vs");
   window.history.replaceState({}, "", url);
 }
 
 function shareUrl(repo) {
   const url = new URL(appUrl);
   url.searchParams.set("repo", repo);
+  return url.href;
+}
+
+function duelUrl(repo, opponent) {
+  const url = new URL(shareUrl(repo));
+  url.searchParams.set("vs", opponent);
   return url.href;
 }
 
