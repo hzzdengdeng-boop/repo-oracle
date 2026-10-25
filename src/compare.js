@@ -13,13 +13,29 @@ export function compareReadings(first, second) {
   return { comparable, verdict };
 }
 
+export function comparisonStrengths(first, second) {
+  const firstSignals = new Map((first.signals || []).map((signal) => [signal.label, signal.passed]));
+  const secondSignals = new Map((second.signals || []).map((signal) => [signal.label, signal.passed]));
+  const firstOnly = [];
+  const secondOnly = [];
+  for (const [label, passed] of firstSignals) {
+    if (!secondSignals.has(label)) continue;
+    if (passed && !secondSignals.get(label)) firstOnly.push(label);
+    if (!passed && secondSignals.get(label)) secondOnly.push(label);
+  }
+  return { firstOnly, secondOnly };
+}
+
 export function comparisonText(first, second, permalink) {
   const { verdict } = compareReadings(first, second);
+  const { firstOnly, secondOnly } = comparisonStrengths(first, second);
   return [
     `Repo Oracle compared ${first.title} and ${second.title}:`,
     `${first.title}: ${first.score}/100 ${first.scoreTitle}`,
     `${second.title}: ${second.score}/100 ${second.scoreTitle}`,
     verdict,
+    ...(firstOnly.length ? [`${first.title} leads on: ${firstOnly.join(", ")}.`] : []),
+    ...(secondOnly.length ? [`${second.title} leads on: ${secondOnly.join(", ")}.`] : []),
     `See the comparison: ${permalink}`
   ].join("\n");
 }

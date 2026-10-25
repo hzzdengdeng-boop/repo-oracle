@@ -429,6 +429,24 @@ textarea {
   font-weight: 800;
 }
 
+.duel-strengths {
+  margin-top: 12px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.duel-strengths:empty {
+  display: none;
+}
+
+.duel-strengths p {
+  margin: 6px 0;
+}
+
+.duel-strengths strong {
+  color: var(--ink);
+}
+
 #copy-duel {
   margin-top: 16px;
 }

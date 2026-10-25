@@ -1,5 +1,5 @@
 import { analyze, fetchRepo, parseRepoUrl } from "./analyzer.js?v=20261020";
-import { compareReadings, comparisonText } from "./compare.js?v=20261021";
+import { compareReadings, comparisonStrengths, comparisonText } from "./compare.js?v=20261025";
 import { pickExample } from "./examples.js";
 import { badgeMarkdown, downloadCard, fixPlanMarkdown, shareTextFor } from "./share-card.js?v=20261013";
 
@@ -217,6 +217,10 @@ async function readOpponent(value, version) {
     opponentRepo = challenger;
     opponentResult = analyze(data.meta, data.readme, { readmeOnly: data.readmeOnly });
     const { verdict } = compareReadings(currentResult, opponentResult);
+    const { firstOnly, secondOnly } = comparisonStrengths(currentResult, opponentResult);
+    const strengthLine = (title, labels) => labels.length
+      ? `<p><strong>${escapeHtml(title)} leads on:</strong> ${labels.map(escapeHtml).join(", ")}.</p>`
+      : "";
     duelResult.innerHTML = `
       <div class="duel-scores">
         <div class="duel-side"><strong>${currentResult.score}</strong><span>${escapeHtml(currentResult.title)}</span><small>${escapeHtml(currentResult.scoreTitle)}</small></div>
@@ -224,6 +228,10 @@ async function readOpponent(value, version) {
         <div class="duel-side"><strong>${opponentResult.score}</strong><span>${escapeHtml(opponentResult.title)}</span><small>${escapeHtml(opponentResult.scoreTitle)}</small></div>
       </div>
       <p class="duel-verdict">${escapeHtml(verdict)}</p>
+      <div class="duel-strengths">
+        ${strengthLine(currentResult.title, firstOnly)}
+        ${strengthLine(opponentResult.title, secondOnly)}
+      </div>
     `;
     updatePermalink(currentRepo, opponentRepo);
     copyDuel.hidden = false;

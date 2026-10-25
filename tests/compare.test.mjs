@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { compareReadings, comparisonText } from "../src/compare.js";
+import { compareReadings, comparisonStrengths, comparisonText } from "../src/compare.js";
 
 const first = { title: "owner/first", score: 82, scoreTitle: "Star Potential", readmeOnly: false };
 const second = { title: "owner/second", score: 71, scoreTitle: "Star Potential", readmeOnly: false };
@@ -27,4 +27,27 @@ test("README-only and full scores are not ranked against each other", () => {
   assert.match(text, /No winner declared/);
   assert.match(text, /README Readiness/);
   assert.match(text, /vs=owner%2Fsecond/);
+});
+
+test("duel strengths show only checks one repo passes and the other misses", () => {
+  const left = { ...first, signals: [
+    { label: "Visual proof", passed: true },
+    { label: "Live demo", passed: false },
+    { label: "License", passed: true },
+    { label: "Three or more topics", passed: true }
+  ] };
+  const right = { ...second, signals: [
+    { label: "Visual proof", passed: false },
+    { label: "Live demo", passed: true },
+    { label: "License", passed: true }
+  ] };
+  assert.deepEqual(comparisonStrengths(left, right), {
+    firstOnly: ["Visual proof"],
+    secondOnly: ["Live demo"]
+  });
+  const copy = comparisonText(left, right, "https://example.com/duel");
+  assert.match(copy, /owner\/first leads on: Visual proof\./);
+  assert.match(copy, /owner\/second leads on: Live demo\./);
+  assert.doesNotMatch(copy, /leads on:.*License/);
+  assert.doesNotMatch(copy, /leads on:.*Three or more topics/);
 });
