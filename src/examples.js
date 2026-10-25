@@ -10,7 +10,8 @@ export const exampleRepos = [
 ];
 
 export function pickExample(random = Math.random, excluded = "") {
-  const choices = exampleRepos.filter((repo) => repo !== excluded);
+  const exclusions = new Set((Array.isArray(excluded) ? excluded : [excluded]).map((repo) => repo.toLowerCase()));
+  const choices = exampleRepos.filter((repo) => !exclusions.has(repo.toLowerCase()));
   const index = Math.min(Math.floor(random() * choices.length), choices.length - 1);
   return choices[index];
 }

@@ -13,6 +13,11 @@ test("does not immediately repeat the excluded example", () => {
   assert.notEqual(pickExample(() => 0, excluded), excluded);
 });
 
+test("excludes the current repo and previous challenger regardless of case", () => {
+  const excluded = [exampleRepos[0].toUpperCase(), exampleRepos[1]];
+  assert.equal(pickExample(() => 0, excluded), exampleRepos[2]);
+});
+
 test("all examples use owner/repo notation", () => {
   for (const repo of exampleRepos) {
     assert.match(repo, /^[\w.-]+\/[\w.-]+$/);

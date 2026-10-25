@@ -385,6 +385,10 @@ textarea {
   font-weight: 800;
 }
 
+#surprise-challenger {
+  margin-top: 12px;
+}
+
 .duel-result {
   margin-top: 22px;
 }

@@ -1,6 +1,6 @@
 import { analyze, fetchRepo, parseRepoUrl } from "./analyzer.js?v=20261020";
 import { compareReadings, comparisonStrengths, comparisonText } from "./compare.js?v=20261025";
-import { pickExample } from "./examples.js";
+import { pickExample } from "./examples.js?v=20261026";
 import { badgeMarkdown, downloadCard, fixPlanMarkdown, shareTextFor } from "./share-card.js?v=20261013";
 
 const form = document.querySelector("#repo-form");
@@ -24,6 +24,7 @@ const downloadCardButton = document.querySelector("#download-card");
 const duel = document.querySelector("#duel");
 const duelForm = document.querySelector("#duel-form");
 const duelInput = document.querySelector("#duel-url");
+const surpriseChallenger = document.querySelector("#surprise-challenger");
 const duelResult = document.querySelector("#duel-result");
 const copyDuel = document.querySelector("#copy-duel");
 const compareButton = duelForm.querySelector("button[type='submit']");
@@ -34,6 +35,7 @@ let currentResult = null;
 let opponentRepo = "";
 let opponentResult = null;
 let lastExample = "";
+let lastChallenger = "";
 let readingVersion = 0;
 let opponentVersion = 0;
 let initialOpponent = new URL(window.location.href).searchParams.get("vs");
@@ -71,6 +73,12 @@ form.addEventListener("submit", async (event) => {
 duelForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   await readOpponent(duelInput.value, readingVersion);
+});
+
+surpriseChallenger.addEventListener("click", () => {
+  lastChallenger = pickExample(Math.random, [currentRepo, lastChallenger]);
+  duelInput.value = lastChallenger;
+  duelForm.requestSubmit();
 });
 
 copyDuel.addEventListener("click", async () => {
@@ -204,6 +212,7 @@ async function readOpponent(value, version) {
   copyDuel.hidden = true;
   copyDuel.disabled = true;
   compareButton.disabled = true;
+  surpriseChallenger.disabled = true;
   duelResult.textContent = "Reading the challenger...";
   updatePermalink(currentRepo);
   try {
@@ -239,7 +248,10 @@ async function readOpponent(value, version) {
   } catch (error) {
     if (version === readingVersion && attempt === opponentVersion) duelResult.textContent = error.message;
   } finally {
-    if (version === readingVersion && attempt === opponentVersion) compareButton.disabled = false;
+    if (version === readingVersion && attempt === opponentVersion) {
+      compareButton.disabled = false;
+      surpriseChallenger.disabled = false;
+    }
   }
 }
 
@@ -253,6 +265,7 @@ function resetDuel() {
   copyDuel.hidden = true;
   copyDuel.disabled = true;
   compareButton.disabled = false;
+  surpriseChallenger.disabled = false;
 }
 
 function setShareEnabled(enabled) {
