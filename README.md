@@ -4,37 +4,25 @@
 [![Live demo](https://img.shields.io/badge/live-demo-1f7a68)](https://hzzdengdeng-boop.github.io/repo-oracle/)
 [![MIT License](https://img.shields.io/badge/license-MIT-d55c3f)](LICENSE)
 
-A quick, slightly ruthless checkup for your GitHub repo.
+A README roast with receipts. Paste any public GitHub repository and get a
+first-impression score, a pointed fortune, and three fixes worth making.
+No account, API key, or setup.
 
-Paste a public repo URL. Repo Oracle reads the README and public GitHub signals,
-then gives you a score, a roast, and three concrete fixes. No account or API key.
-The score now includes a visible signal checklist, so you can see exactly what
-passed instead of trusting a mystery number. Missing signals show their point
-value, and the report calls out the highest-impact next win. Fortune copy scales
-with the score, so polished repos get a playful nitpick instead of a false alarm.
-The score line shows earned points and any README or badge deductions.
-Command checks recognize Python, Git, and other shell quickstarts, not only package-manager examples.
-
-[Try it live](https://hzzdengdeng-boop.github.io/repo-oracle/), hit
-**Surprise me with a repo** for an instant reading, or
-[see a sample report](examples/sample-report.md).
-
-Enter a second repository in **Repo Duel**, or tap **Surprise challenger** for
-an instant matchup. Compare scores, then share the matchup from your browser or
-copy a direct link. When GitHub
-data is unavailable for only one repo, the app shows
-both readings without declaring a winner across different scoring modes. The
-matchup also shows which checks each repo passes that the other misses.
+**[Read a repo's fortune](https://hzzdengdeng-boop.github.io/repo-oracle/)** |
+**[Try a live example](https://hzzdengdeng-boop.github.io/repo-oracle/?repo=neovim%2Fneovim)** |
+[See a sample report](examples/sample-report.md)
 
 ![Example Repo Oracle fortune card](examples/fortune-card.png)
 
-Reports have shareable links, and you can download a 1200 x 630 PNG card.
-Shared text and cards include the highest-impact next win, not just the score.
-You can also copy a live-report badge straight into your own README.
-The three recommended fixes can be copied as a Markdown checklist for an issue.
-Shared links include a large social preview, so the joke survives outside the app.
-If GitHub's API is rate-limited, the app switches to a clearly labeled
-README-only reading instead of guessing at unavailable repo statistics.
+The score is auditable: every passing or missing signal has a point value, and
+the report names the highest-impact next win. Checks cover quickstarts across
+common languages and tools, examples, visual proof, license, and GitHub metadata.
+
+**Repo Duel** compares two repositories side by side. Pick your own challenger
+or roll a surprise matchup, then share the result. Reports also have permalinks,
+downloadable fortune cards, a README badge, and a copy-ready fix checklist.
+If GitHub rate limits the API, Repo Oracle labels its narrower README-only
+reading and never compares it as though it were a full score.
 
 ## Why This Exists
 
@@ -44,7 +32,7 @@ fixes you can make in ten minutes.
 
 ## Run It Locally
 
-Open `index.html` in a browser, or serve the folder with any static server:
+Serve the folder with any static server:
 
 ```bash
 python -m http.server 8080
