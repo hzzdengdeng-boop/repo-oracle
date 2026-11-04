@@ -20,7 +20,8 @@ Command checks recognize Python, Git, and other shell quickstarts, not only pack
 [see a sample report](examples/sample-report.md).
 
 Enter a second repository in **Repo Duel**, or tap **Surprise challenger** for
-an instant matchup. Compare scores and share a link to the result. When GitHub
+an instant matchup. Compare scores, then share the matchup from your browser or
+copy a direct link. When GitHub
 data is unavailable for only one repo, the app shows
 both readings without declaring a winner across different scoring modes. The
 matchup also shows which checks each repo passes that the other misses.

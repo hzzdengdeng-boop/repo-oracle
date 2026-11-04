@@ -27,6 +27,7 @@ const duelInput = document.querySelector("#duel-url");
 const surpriseChallenger = document.querySelector("#surprise-challenger");
 const duelResult = document.querySelector("#duel-result");
 const copyDuel = document.querySelector("#copy-duel");
+const shareDuel = document.querySelector("#share-duel");
 const compareButton = duelForm.querySelector("button[type='submit']");
 const appUrl = "https://hzzdengdeng-boop.github.io/repo-oracle/";
 
@@ -87,6 +88,25 @@ copyDuel.addEventListener("click", async () => {
   setTimeout(() => {
     copyDuel.textContent = "Copy comparison";
   }, 1100);
+});
+
+shareDuel.addEventListener("click", async () => {
+  const url = duelUrl(currentRepo, opponentRepo);
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: `${currentRepo} vs ${opponentRepo} | Repo Oracle`,
+        text: compareReadings(currentResult, opponentResult).verdict,
+        url
+      });
+    } catch (error) {
+      if (error.name !== "AbortError") throw error;
+    }
+    return;
+  }
+  await navigator.clipboard.writeText(url);
+  shareDuel.textContent = "Link copied";
+  setTimeout(() => { shareDuel.textContent = "Share matchup"; }, 1100);
 });
 
 copyShare.addEventListener("click", async () => {
@@ -211,6 +231,8 @@ async function readOpponent(value, version) {
   opponentResult = null;
   copyDuel.hidden = true;
   copyDuel.disabled = true;
+  shareDuel.hidden = true;
+  shareDuel.disabled = true;
   compareButton.disabled = true;
   surpriseChallenger.disabled = true;
   duelResult.textContent = "Reading the challenger...";
@@ -245,6 +267,8 @@ async function readOpponent(value, version) {
     updatePermalink(currentRepo, opponentRepo);
     copyDuel.hidden = false;
     copyDuel.disabled = false;
+    shareDuel.hidden = false;
+    shareDuel.disabled = false;
   } catch (error) {
     if (version === readingVersion && attempt === opponentVersion) duelResult.textContent = error.message;
   } finally {
@@ -264,6 +288,8 @@ function resetDuel() {
   duelResult.textContent = "";
   copyDuel.hidden = true;
   copyDuel.disabled = true;
+  shareDuel.hidden = true;
+  shareDuel.disabled = true;
   compareButton.disabled = false;
   surpriseChallenger.disabled = false;
 }

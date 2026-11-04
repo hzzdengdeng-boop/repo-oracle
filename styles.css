@@ -371,7 +371,8 @@ textarea {
 }
 
 .duel[hidden],
-#copy-duel[hidden] {
+#copy-duel[hidden],
+#share-duel[hidden] {
   display: none;
 }
 
@@ -451,7 +452,8 @@ textarea {
   color: var(--ink);
 }
 
-#copy-duel {
+#copy-duel,
+#share-duel {
   margin-top: 16px;
 }
 
