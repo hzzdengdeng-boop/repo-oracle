@@ -1,6 +1,18 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { badgeMarkdown, fixPlanMarkdown, shareTextFor } from "../src/share-card.js";
+import { badgeMarkdown, fitText, fixPlanMarkdown, shareTextFor, wrapText } from "../src/share-card.js";
+
+const measureByCharacter = { measureText: (text) => ({ width: [...text].length }) };
+
+test("card text fitting respects the width and keeps Unicode characters intact", () => {
+  assert.equal(fitText(measureByCharacter, "abcdefgh", 6), "abc...");
+  assert.equal(fitText(measureByCharacter, "repository", 2), "...");
+  assert.equal(fitText(measureByCharacter, "ink🖋️", 6), "ink🖋️");
+});
+
+test("wrapped card text truncates overflow without splitting characters", () => {
+  assert.deepEqual(wrapText(measureByCharacter, "one two three four", 8, 2), ["one two", "three..."]);
+});
 
 test("badge markdown links the score to the report", () => {
   const permalink = "https://example.com/?repo=owner%2Frepo";
@@ -58,3 +70,4 @@ test("fully earned share text does not invent a missing signal", () => {
   assert.doesNotMatch(copy, /Next win:/);
   assert.match(copy, /GitHub API unavailable/);
 });
+

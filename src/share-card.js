@@ -107,14 +107,18 @@ export function downloadCard(result, permalink) {
   }, "image/png");
 }
 
-function fitText(ctx, text, width) {
+export function fitText(ctx, text, width) {
   if (ctx.measureText(text).width <= width) return text;
-  let end = text.length;
-  while (end > 1 && ctx.measureText(`${text.slice(0, end)}...`).width > width) end -= 1;
-  return `${text.slice(0, end)}...`;
+  const suffix = "...";
+  let fitted = "";
+  for (const character of text) {
+    if (ctx.measureText(`${fitted}${character}${suffix}`).width > width) break;
+    fitted += character;
+  }
+  return fitted ? `${fitted}${suffix}` : suffix;
 }
 
-function wrapText(ctx, text, width, maxLines) {
+export function wrapText(ctx, text, width, maxLines) {
   const words = text.split(/\s+/);
   const lines = [];
   let line = "";
